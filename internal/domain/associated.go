@@ -1,5 +1,7 @@
 package domain
 
+import "gorm.io/gorm"
+
 type MaritalStatus string
 
 const (
@@ -9,6 +11,7 @@ const (
 )
 
 type Associated struct {
+	gorm.Model
 	Cpf           string        `json:"cpf"`
 	Name          string        `json:"name"`
 	DateBirth     string        `json:"dateBirth"`

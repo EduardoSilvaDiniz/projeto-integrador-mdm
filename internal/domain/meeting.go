@@ -1,6 +1,9 @@
 package domain
 
+import "gorm.io/gorm"
+
 type Meeting struct {
+	gorm.Model
 	Id        int    `json:"id"`
 	ProjectId int    `json:"projectId"`
 	GroupId   int    `json:"groupId"`

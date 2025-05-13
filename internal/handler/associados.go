@@ -2,9 +2,9 @@ package handler
 
 import (
 	"encoding/json"
-	"log"
 	"net/http"
 
+	"chamada-pagamento-system/db"
 	"chamada-pagamento-system/internal/domain"
 )
 
@@ -15,13 +15,11 @@ func createAssociated(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	log.Println("Associado recebido: ", assoc)
-
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusCreated)
-	if err := json.NewEncoder(w).Encode(map[string]string{
-		"message": "associado criando com sucesso",
-	}); err != nil {
-		log.Println("Erro ao escrever resposta: ", err)
+	if err := db.DB.Create(&assoc); err != nil {
+		http.Error(w, "Falha ao salvar dados no banco de dados", http.StatusBadRequest)
+		return
 	}
+
+	w.WriteHeader(http.StatusCreated)
+	json.NewEncoder(w).Encode(assoc)
 }
