@@ -14,6 +14,7 @@ func main() {
 	handler.RegisterHandlers(mux)
 
 	db.Connect()
+	db.DB.Migrator().DropTable(&domain.Associated{})
 	db.DB.AutoMigrate(&domain.Associated{})
 
 	log.Println("servidor inicializado em :8080")
