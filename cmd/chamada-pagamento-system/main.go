@@ -4,7 +4,7 @@ import (
 	"log"
 	"net/http"
 
-	"chamada-pagamento-system/db"
+	"chamada-pagamento-system/configs"
 	"chamada-pagamento-system/internal/domain"
 	"chamada-pagamento-system/internal/handler"
 )
@@ -13,7 +13,8 @@ func main() {
 	mux := http.NewServeMux()
 	handler.RegisterHandlers(mux)
 
-	db.Connect()
+	configs.DB
+	config.Connect()
 	db.DB.Migrator().DropTable(&domain.Associated{})
 	db.DB.AutoMigrate(&domain.Associated{})
 
