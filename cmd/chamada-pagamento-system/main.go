@@ -6,12 +6,13 @@ import (
 
 	"chamada-pagamento-system/internal/domain/entities"
 	"chamada-pagamento-system/internal/migrations"
-	"chamada-pagamento-system/internal/transport/http-server/handlers"
+
+	httpserver "chamada-pagamento-system/internal/transport/http-server"
 )
 
 func main() {
 	mux := http.NewServeMux()
-	handlers.RegisterHandlers(mux)
+	httpserver.RegisterHandlers(mux)
 
 	migrations.PostgresMigrate()
 	migrations.DB.Migrator().DropTable(&entities.Associated{})
