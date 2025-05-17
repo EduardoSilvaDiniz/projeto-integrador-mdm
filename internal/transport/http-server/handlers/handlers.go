@@ -12,5 +12,5 @@ func pingPong(w http.ResponseWriter, _ *http.Request) {
 
 func RegisterHandlers(mux *http.ServeMux) {
 	mux.HandleFunc("/ping", pingPong)
-	mux.HandleFunc("/associated", MapeamentoAssoc)
+	mux.HandleFunc("/associated", MapEndpointsToAssoc)
 }
