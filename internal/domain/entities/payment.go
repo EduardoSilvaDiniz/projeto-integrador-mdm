@@ -4,8 +4,7 @@ import "gorm.io/gorm"
 
 type Payment struct {
 	gorm.Model
-	Id             int    `json:"id"`
-	Associated     int    `json:"associated"`
-	Date           string `json:"date"`
-	MonthReference string `json:"monthReference"`
+	Associated     int    `gorm:"no null"`
+	Date           string `gorm:"no null"`
+	MonthReference string `gorm:"no null"`
 }

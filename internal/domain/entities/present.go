@@ -4,9 +4,8 @@ import "gorm.io/gorm"
 
 type Present struct {
 	gorm.Model
-	Id         int        `json:"id"`
-	Meeting    Meeting    `json:"Meeting"`
-	Associated Associated `json:"Associated"`
-	Date       string     `json:"date"`
-	Present    bool       `json:"present"`
+	Meeting    Meeting    `gorm:"no null"`
+	Associated Associated `gorm:"no null"`
+	Date       string     `gorm:"no null"`
+	Present    bool       `gorm:"no null"`
 }
