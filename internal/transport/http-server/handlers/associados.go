@@ -1,17 +1,16 @@
-package handler
+package handlers
 
 import (
+	"chamada-pagamento-system/internal/domain/entities"
+	"chamada-pagamento-system/internal/migrations"
 	"encoding/json"
 	"fmt"
 	"net/http"
-
-	"chamada-pagamento-system/db"
-	"chamada-pagamento-system/internal/domain"
 )
 
 func getAssociated(w http.ResponseWriter, _ *http.Request) {
-	var assoc []domain.Associated
-	if err := db.DB.Find(&assoc).Error; err != nil {
+	var assoc []entities.Associated
+	if err := migrations.DB.Find(&assoc).Error; err != nil {
 		http.Error(w, "erro ao listar assoc: "+err.Error(), http.StatusBadRequest)
 	}
 	w.Header().Set("Content-Type", "application/json")
@@ -29,7 +28,7 @@ func createAssociated(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "metodo não permitido", http.StatusMethodNotAllowed)
 	}
 
-	var assoc domain.Associated
+	var assoc entities.Associated
 
 	if err := json.NewDecoder(r.Body).Decode(&assoc); err != nil {
 		http.Error(w, "JSON invalido: "+err.Error(), http.StatusBadRequest)
@@ -49,7 +48,7 @@ func createAssociated(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err := db.DB.Create(&assoc).Error; err != nil {
+	if err := migrations.DB.Create(&assoc).Error; err != nil {
 		http.Error(
 			w,
 			"Falha ao salvar dados no banco de dados: "+err.Error(),

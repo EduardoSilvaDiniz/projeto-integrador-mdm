@@ -4,19 +4,18 @@ import (
 	"log"
 	"net/http"
 
-	"chamada-pagamento-system/configs"
-	"chamada-pagamento-system/internal/domain"
-	"chamada-pagamento-system/internal/handler"
+	"chamada-pagamento-system/internal/domain/entities"
+	"chamada-pagamento-system/internal/migrations"
+	"chamada-pagamento-system/internal/transport/http-server/handlers"
 )
 
 func main() {
 	mux := http.NewServeMux()
-	handler.RegisterHandlers(mux)
+	handlers.RegisterHandlers(mux)
 
-	configs.DB
-	config.Connect()
-	db.DB.Migrator().DropTable(&domain.Associated{})
-	db.DB.AutoMigrate(&domain.Associated{})
+	migrations.PostgresMigrate()
+	migrations.DB.Migrator().DropTable(&entities.Associated{})
+	migrations.DB.AutoMigrate(&entities.Associated{})
 
 	log.Println("servidor inicializado em :8080")
 	if err := http.ListenAndServe(":8080", mux); err != nil {

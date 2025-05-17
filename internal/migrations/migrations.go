@@ -1,4 +1,4 @@
-package configs
+package migrations
 
 import (
 	"log"
@@ -7,11 +7,13 @@ import (
 	"gorm.io/gorm"
 )
 
-var DB *gorm.DB
+var (
+	DB     *gorm.DB
+	config = "host=localhost user=postgres password=postgres dbname=postgres port=5432 sslmode=disable"
+)
 
 func PostgresMigrate() {
-	dsn := "host=localhost user=postgres password=postgres dbname=postgres port=5432 sslmode=disable"
-	database, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
+	database, err := gorm.Open(postgres.Open(config), &gorm.Config{})
 	if err != nil {
 		log.Fatal("erro ao conectar ao banco de dados", err)
 	}
