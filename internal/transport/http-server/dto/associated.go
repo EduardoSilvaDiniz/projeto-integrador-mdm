@@ -3,6 +3,9 @@ package dto
 import (
 	"reflect"
 	"strings"
+	"time"
+
+	"gorm.io/gorm"
 )
 
 type MaritalStatus string
@@ -14,10 +17,13 @@ const (
 )
 
 type Associated struct {
-	CPF           string        `json:"cpf"`
-	Name          string        `json:"name"`
-	DateBirth     string        `json:"dateBirth"`
-	MaritalStatus MaritalStatus `json:"maritalStatus"`
+	CreatedAt     time.Time      `json:"createdAt"`
+	UpdatedAt     time.Time      `json:"updatedAt"`
+	DeletedAt     gorm.DeletedAt `json:"deletedAt"`
+	CPF           string         `json:"cpf"`
+	Name          string         `json:"name"`
+	DateBirth     string         `json:"dateBirth"`
+	MaritalStatus MaritalStatus  `json:"maritalStatus"`
 }
 
 func (a Associated) IsValid() []string {

@@ -1,9 +1,16 @@
 package entities
 
-import "gorm.io/gorm"
+import (
+	"time"
+
+	"gorm.io/gorm"
+)
 
 type Project struct {
 	gorm.Model
-	Name          string  `gorm:"no null"`
-	PaymentAmount float32 `gorm:"no null"`
+	CreatedAt     time.Time
+	UpdatedAt     time.Time
+	DeletedAt     gorm.DeletedAt `gorm:"index"`
+	Name          string         `gorm:"no null"`
+	PaymentAmount float32        `gorm:"no null"`
 }
