@@ -54,16 +54,10 @@ func createAssociated(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintln(w, assocDto)
 }
 
-func deleteAssoc(w http.ResponseWriter, r *http.Request) {
-	var assoc dto.Associated
-	if err := json.NewDecoder(r.Body).Decode(&assoc); err != nil {
-		http.Error(w, "falha na decotificação do json: "+err.Error(), http.StatusBadRequest)
-		return
-	}
-
-	result := migrations.DB.Where("name = ?", assoc.Name).Delete(&assocEntity)
+func DeleteAssoc(w http.ResponseWriter, r *http.Request) {
+	result := migrations.DB.Where("cpf = ?", r.PathValue("cpf")).Delete(&assocEntity)
 	if err := result.Error; err != nil {
-		http.Error(w, "erro ao remover "+assoc.Name+": "+err.Error(), http.StatusBadRequest)
+		http.Error(w, "erro ao remover associado: "+err.Error(), http.StatusBadRequest)
 		return
 	}
 
@@ -85,7 +79,7 @@ func MapEndpointsToAssoc(w http.ResponseWriter, r *http.Request) {
 	case http.MethodPut:
 		fmt.Fprintln(w, "You made a PUT request!")
 	case http.MethodDelete:
-		deleteAssoc(w, r)
+		fmt.Fprintln(w, "You made a DELETE request!")
 	default:
 		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
 	}
