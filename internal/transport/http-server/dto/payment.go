@@ -7,10 +7,10 @@ import (
 )
 
 type Payment struct {
-	CreatedAt      time.Time      `json:"createdAt"`
-	UpdatedAt      time.Time      `json:"updatedAt"`
-	DeletedAt      gorm.DeletedAt `json:"deletedAt"`
-	Associated     int            `json:"associated"`
-	Date           string         `json:"date"`
-	MonthReference string         `json:"monthReference"`
+	CreatedAt      time.Time      `json:"created_at"`
+	UpdatedAt      time.Time      `json:"updated_at"`
+	DeletedAt      gorm.DeletedAt `json:"deleted_at"`
+	Associated     int            `json:"associated,omitempty"`
+	Date           string         `json:"date,omitempty"`
+	MonthReference string         `json:"month_reference,omitempty"`
 }

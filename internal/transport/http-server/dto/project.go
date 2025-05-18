@@ -7,9 +7,9 @@ import (
 )
 
 type Project struct {
-	CreatedAt     time.Time      `json:"createdAt"`
-	UpdatedAt     time.Time      `json:"updatedAt"`
-	DeletedAt     gorm.DeletedAt `json:"deletedAt"`
-	Name          string         `json:"name"`
-	PaymentAmount float32        `json:"paymentAmount"`
+	CreatedAt     time.Time      `json:"created_at"`
+	UpdatedAt     time.Time      `json:"updated_at"`
+	DeletedAt     gorm.DeletedAt `json:"deleted_at"`
+	Name          string         `json:"name,omitempty"`
+	PaymentAmount float32        `json:"payment_amount,omitempty"`
 }

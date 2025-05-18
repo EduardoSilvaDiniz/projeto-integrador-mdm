@@ -7,11 +7,11 @@ import (
 )
 
 type Present struct {
-	CreatedAt  time.Time      `json:"createdAt"`
-	UpdatedAt  time.Time      `json:"updatedAt"`
-	DeletedAt  gorm.DeletedAt `json:"deletedAt"`
-	Meeting    Meeting        `json:"Meeting"`
-	Associated Associated     `json:"Associated"`
-	Date       string         `json:"date"`
-	Present    bool           `json:"present"`
+	CreatedAt  time.Time      `json:"created_at"`
+	UpdatedAt  time.Time      `json:"updated_at"`
+	DeletedAt  gorm.DeletedAt `json:"deleted_at"`
+	Meeting    Meeting        `json:"meeting,omitempty"`
+	Associated Associated     `json:"associated,omitempty"`
+	Date       string         `json:"date,omitempty"`
+	Present    bool           `json:"present,omitempty"`
 }

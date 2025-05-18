@@ -7,12 +7,12 @@ import (
 )
 
 type Meeting struct {
-	CreatedAt time.Time      `json:"createdAt"`
-	UpdatedAt time.Time      `json:"updatedAt"`
-	DeletedAt gorm.DeletedAt `json:"deletedAt"`
-	ProjectId int            `json:"projectId"`
-	GroupId   int            `json:"groupId"`
-	HubId     int            `json:"hubId"`
-	Date      string         `json:"date"`
-	Time      string         `json:"time"`
+	CreatedAt time.Time      `json:"created_at"`
+	UpdatedAt time.Time      `json:"updated_at"`
+	DeletedAt gorm.DeletedAt `json:"deleted_at"`
+	ProjectId int            `json:"project_id,omitempty"`
+	GroupId   int            `json:"group_id,omitempty"`
+	HubId     int            `json:"hub_id,omitempty"`
+	Date      string         `json:"date,omitempty"`
+	Time      string         `json:"time,omitempty"`
 }

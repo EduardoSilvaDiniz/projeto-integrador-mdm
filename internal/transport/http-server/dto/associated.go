@@ -17,13 +17,13 @@ const (
 )
 
 type Associated struct {
-	CreatedAt     time.Time      `json:"createdAt"`
-	UpdatedAt     time.Time      `json:"updatedAt"`
-	DeletedAt     gorm.DeletedAt `json:"deletedAt"`
-	CPF           string         `json:"cpf"`
-	Name          string         `json:"name"`
-	DateBirth     string         `json:"dateBirth"`
-	MaritalStatus MaritalStatus  `json:"maritalStatus"`
+	CreatedAt     time.Time      `json:"created_at"`
+	UpdatedAt     time.Time      `json:"updated_at"`
+	DeletedAt     gorm.DeletedAt `json:"deleted_at"`
+	CPF           string         `json:"cpf,omitempty"`
+	Name          string         `json:"name,omitempty"`
+	DateBirth     string         `json:"date_birth,omitempty"`
+	MaritalStatus MaritalStatus  `json:"marital_status,omitempty"`
 }
 
 func (a Associated) IsValid() []string {
