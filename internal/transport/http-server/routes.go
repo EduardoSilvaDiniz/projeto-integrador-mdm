@@ -13,7 +13,9 @@ func pingPong(w http.ResponseWriter, _ *http.Request) {
 }
 
 func RegisterHandlers(mux *http.ServeMux) {
-	mux.HandleFunc("/ping", pingPong)
-	mux.HandleFunc("/associated", handlers.MapEndpointsToAssoc)
-	mux.HandleFunc("/associated/{cpf}", handlers.DeleteAssoc)
+	mux.HandleFunc("GET /ping", pingPong)
+	mux.HandleFunc("GET /associated", handlers.GetAssociated)
+	mux.HandleFunc("POST /associated", handlers.CreateAssociated)
+	// mux.HandleFunc("PUT /associated", handlers.MapEndpointsToAssoc)
+	mux.HandleFunc("DELETE /associated/{cpf}", handlers.DeleteAssoc)
 }

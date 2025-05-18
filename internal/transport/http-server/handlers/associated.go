@@ -12,7 +12,7 @@ import (
 
 var assocEntity entities.Associated
 
-func getAssociated(w http.ResponseWriter, _ *http.Request) {
+func GetAssociated(w http.ResponseWriter, _ *http.Request) {
 	var assocDtoList []dto.Associated
 
 	if err := migrations.DB.Find(&assocDtoList).Error; err != nil {
@@ -27,7 +27,7 @@ func getAssociated(w http.ResponseWriter, _ *http.Request) {
 	fmt.Fprintln(w, assocDtoList)
 }
 
-func createAssociated(w http.ResponseWriter, r *http.Request) {
+func CreateAssociated(w http.ResponseWriter, r *http.Request) {
 	var assocDto dto.Associated
 
 	if err := json.NewDecoder(r.Body).Decode(&assocDto); err != nil {
@@ -68,19 +68,4 @@ func DeleteAssoc(w http.ResponseWriter, r *http.Request) {
 
 	w.WriteHeader(http.StatusOK)
 	fmt.Fprintln(w, "Associado deletado com sucesso")
-}
-
-func MapEndpointsToAssoc(w http.ResponseWriter, r *http.Request) {
-	switch r.Method {
-	case http.MethodGet:
-		getAssociated(w, r)
-	case http.MethodPost:
-		createAssociated(w, r)
-	case http.MethodPut:
-		fmt.Fprintln(w, "You made a PUT request!")
-	case http.MethodDelete:
-		fmt.Fprintln(w, "You made a DELETE request!")
-	default:
-		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
-	}
 }
