@@ -1,6 +1,8 @@
 package dto
 
 import (
+	"chamada-pagamento-system/internal/domain/entities"
+	"errors"
 	"reflect"
 	"strings"
 	"time"
@@ -26,8 +28,8 @@ type Associated struct {
 	MaritalStatus MaritalStatus  `json:"marital_status,omitempty"`
 }
 
-func (a Associated) IsValid() []string {
-	var error []string
+func (a Associated) IsValid() error {
+	var listErrors []string
 	v := reflect.ValueOf(a)
 	t := reflect.TypeOf(a)
 
@@ -36,9 +38,24 @@ func (a Associated) IsValid() []string {
 		fieldName := t.Field(i).Name
 
 		if fieldValue.Kind() == reflect.String && strings.TrimSpace(fieldValue.String()) == "" {
-			error = append(error, "campo "+fieldName+" esta vazio")
+			listErrors = append(listErrors, "campo "+fieldName+" esta vazio")
 		}
-
 	}
-	return error
+	if listErrors != nil {
+		return errors.New(strings.Join(listErrors, " "))
+	}
+
+	return nil
+}
+
+func (a *Associated) ToEntity() *entities.Associated {
+	return &entities.Associated{
+		CreatedAt:     a.CreatedAt,
+		UpdatedAt:     a.UpdatedAt,
+		DeletedAt:     a.DeletedAt,
+		CPF:           a.CPF,
+		Name:          a.Name,
+		DateBirth:     a.DateBirth,
+		MaritalStatus: string(a.MaritalStatus),
+	}
 }

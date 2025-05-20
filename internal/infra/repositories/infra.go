@@ -7,15 +7,13 @@ import (
 	"gorm.io/gorm"
 )
 
-var (
-	DB     *gorm.DB
-	config = "host=localhost user=postgres password=postgres dbname=postgres port=5432 sslmode=disable"
-)
+var config = "host=localhost user=postgres password=postgres dbname=postgres port=5432 sslmode=disable"
 
-func PostgresMigrate() {
+
+func PostgresMigrate() *gorm.DB {
 	database, err := gorm.Open(postgres.Open(config), &gorm.Config{})
 	if err != nil {
 		log.Fatal("erro ao conectar ao banco de dados", err)
 	}
-	DB = database
+	return database
 }
