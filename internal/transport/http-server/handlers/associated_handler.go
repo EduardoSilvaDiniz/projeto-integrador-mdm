@@ -1,7 +1,6 @@
 package handlers
 
 import (
-	"chamada-pagamento-system/internal/domain/entities"
 	"chamada-pagamento-system/internal/domain/services"
 	"chamada-pagamento-system/internal/transport/http-server/dto"
 	"encoding/json"
@@ -9,35 +8,34 @@ import (
 	"net/http"
 )
 
-var assocEntity entities.Associated
 
-// func GetAllAssociatedHandler(svc *services.AssociatedService) http.HandlerFunc {
-// 	return func(w http.ResponseWriter, _ *http.Request) {
-// 		assocList, err := svc.
-// 		if err != nil {
-// 			http.Error(w, "erro ao listar assoc: "+err.Error(), http.StatusBadRequest)
-// 		}
-//
-// 		if len(assocList) == 0 {
-// 			http.Error(w, "nenhum associado encontrado", http.StatusNotFound)
-// 			return
-// 		}
-//
-// 		w.WriteHeader(http.StatusOK)
-// 		fmt.Fprintln(w, assocList)
-// 	}
-// }
+func GetAllAssociatedHandler(svc *services.AssociatedService) http.HandlerFunc {
+	return func(w http.ResponseWriter, _ *http.Request) {
+		assocList, err := svc.Repo.GetAll()
+		if err != nil {
+			http.Error(w, "erro ao listar assoc: "+err.Error(), http.StatusBadRequest)
+		}
+
+		if len(assocList) == 0 {
+			http.Error(w, "nenhum associado encontrado", http.StatusNotFound)
+			return
+		}
+
+		w.WriteHeader(http.StatusOK)
+		fmt.Fprintln(w, assocList)
+	}
+}
 
 func CreateAssociatedHandler(svc *services.AssociatedService) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		var a dto.Associated
+		var assoc dto.Associated
 
-		if err := json.NewDecoder(r.Body).Decode(&a); err != nil {
+		if err := json.NewDecoder(r.Body).Decode(&assoc); err != nil {
 			http.Error(w, "JSON invalido: "+err.Error(), http.StatusBadRequest)
 			return
 		}
 
-		if err := svc.Create(&a); err != nil {
+		if err := svc.Create(&assoc); err != nil {
 			response := map[string]string{
 				"error": err.Error(),
 			}
@@ -48,22 +46,18 @@ func CreateAssociatedHandler(svc *services.AssociatedService) http.HandlerFunc {
 		}
 
 		w.WriteHeader(http.StatusCreated)
-		fmt.Fprintln(w, a)
+		fmt.Fprintln(w, assoc)
 	}
 }
 
-// func DeleteAssoc(w http.ResponseWriter, r *http.Request) {
-// 	result := migrations.DB.Where("cpf = ?", r.PathValue("cpf")).Delete(&assocEntity)
-// 	if err := result.Error; err != nil {
-// 		http.Error(w, "erro ao remover associado: "+err.Error(), http.StatusBadRequest)
-// 		return
-// 	}
-//
-// 	if result.RowsAffected == 0 {
-// 		http.Error(w, "nenhum associado encontrado com esse nome", http.StatusNotFound)
-// 		return
-// 	}
-//
-// 	w.WriteHeader(http.StatusOK)
-// 	fmt.Fprintln(w, "Associado deletado com sucesso")
-// }
+func DeleteAssocHandler(svc *services.AssociatedService) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		if err := svc.Repo.DeleteByCPF(r.PathValue("cpf")); err != nil {
+			http.Error(w, "erro ao remover associado: "+err.Error(), http.StatusBadRequest)
+			return
+		}
+
+		w.WriteHeader(http.StatusOK)
+		fmt.Fprintln(w, "Associado deletado com sucesso")
+	}
+}

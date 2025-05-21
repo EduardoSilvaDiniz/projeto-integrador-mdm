@@ -2,6 +2,8 @@ package repositories
 
 import (
 	"chamada-pagamento-system/internal/domain/entities"
+	"chamada-pagamento-system/internal/transport/http-server/dto"
+	"errors"
 
 	"gorm.io/gorm"
 )
@@ -20,4 +22,9 @@ func (r *GormAssociatedRepository) Save(a *entities.Associated) error {
 
 func (r *GormAssociatedRepository) DeleteByCPF(cpf string) error {
 	return r.DB.Where("cpf = ?", cpf).Delete(&entities.Associated{}).Error
+}
+
+func (r *GormAssociatedRepository) GetAll() ([]dto.Associated, error) {
+	var assoc []dto.Associated
+	return assoc, errors.New("falta implementação")
 }
