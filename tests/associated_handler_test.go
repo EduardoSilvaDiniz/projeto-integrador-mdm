@@ -35,8 +35,8 @@ func TestCreateAssoc(t *testing.T) {
 	if err != nil {
 		t.Fatalf("erro ao enviar POST: %s", err.Error())
 	}
-	defer resp.Body.Close()
 
+	defer resp.Body.Close()
 	t.Logf("status: %s", resp.Status)
 }
 

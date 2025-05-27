@@ -2,7 +2,7 @@
 // versions:
 //   sqlc v1.29.0
 
-package tutorial
+package db
 
 type Associated struct {
 	Cpf           int64
