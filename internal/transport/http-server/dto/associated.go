@@ -1,13 +1,9 @@
 package dto
 
 import (
-	"chamada-pagamento-system/internal/domain/entities"
 	"errors"
 	"reflect"
 	"strings"
-	"time"
-
-	"gorm.io/gorm"
 )
 
 type MaritalStatus string
@@ -19,13 +15,10 @@ const (
 )
 
 type Associated struct {
-	CreatedAt     time.Time      `json:"created_at"`
-	UpdatedAt     time.Time      `json:"updated_at"`
-	DeletedAt     gorm.DeletedAt `json:"deleted_at"`
-	CPF           string         `json:"cpf,omitempty"`
-	Name          string         `json:"name,omitempty"`
-	DateBirth     string         `json:"date_birth,omitempty"`
-	MaritalStatus MaritalStatus  `json:"marital_status,omitempty"`
+	CPF           string        `json:"cpf,omitempty"`
+	Name          string        `json:"name,omitempty"`
+	DateBirth     string        `json:"date_birth,omitempty"`
+	MaritalStatus MaritalStatus `json:"marital_status,omitempty"`
 }
 
 func (a Associated) IsValid() error {
@@ -46,16 +39,4 @@ func (a Associated) IsValid() error {
 	}
 
 	return nil
-}
-
-func (a *Associated) ToEntity() *entities.Associated {
-	return &entities.Associated{
-		CreatedAt:     a.CreatedAt,
-		UpdatedAt:     a.UpdatedAt,
-		DeletedAt:     a.DeletedAt,
-		CPF:           a.CPF,
-		Name:          a.Name,
-		DateBirth:     a.DateBirth,
-		MaritalStatus: string(a.MaritalStatus),
-	}
 }

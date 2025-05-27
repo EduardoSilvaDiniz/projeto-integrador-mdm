@@ -1,42 +1,40 @@
 package main
 
 import (
+	"chamada-pagamento-system/deployments"
 	"chamada-pagamento-system/internal/infra/repositories"
-	"chamada-pagamento-system/tutorial"
-	"context"
-	"fmt"
+	httpserver "chamada-pagamento-system/internal/transport/http-server"
+	"log"
+	"net/http"
 )
 
 func main() {
-	// mux := http.NewServeMux()
-	// httpserver.RegisterHandlers(mux)
-
-	// migrations.PostgresMigrate()
-	// migrations.DB.Migrator().DropTable(&entities.Associated{})
-	// migrations.DB.AutoMigrate(&entities.Associated{})
-
-	// log.Println("servidor inicializado em :8080")
-	// if err := http.ListenAndServe(":8080", mux); err != nil {
-	// 	log.Fatal("Erro ao iniciar servidor:", err)
+	conn := repositories.PgxConnect()
+	deployments.Migration(conn)
+	// queries := db.New(conn)
+	// ctx := context.Background()
+	//
+	// if err := queries.CreateAssoc(ctx, db.CreateAssocParams{
+	// 	Cpf:           123,
+	// 	Name:          "edu",
+	// 	DateBirth:     "1010",
+	// 	MaritalStatus: "lala",
+	// }); err != nil {
+	// 	fmt.Println("ERROR: ", err)
+	// 	return
 	// }
-	db := repositories.PgxConnect()
-	queries := tutorial.New(db)
-	ctx := context.Background()
+	//
+	// err := queries.GetAssoc(ctx)
+	// if err != nil {
+	// 	fmt.Println("ERROR: ", err)
+	// 	return
+	// }
 
-	err := queries.CreateAssoc(ctx, tutorial.CreateAssocParams{
-		Cpf:           123,
-		Name:          "edu",
-		DateBirth:     "1010",
-		MaritalStatus: "lala",
-	})
-	if err != nil {
-		fmt.Println("ERROR: ", err)
-		return
-	}
+	mux := http.NewServeMux()
+	httpserver.RegisterHandlers(mux)
 
-	err = queries.GetAssoc(ctx)
-	if err != nil {
-		fmt.Println("ERROR: ", err)
-		return
+	log.Println("servidor inicializado em :8080")
+	if err := http.ListenAndServe(":8080", mux); err != nil {
+		log.Fatal("Erro ao iniciar servidor:", err)
 	}
 }
