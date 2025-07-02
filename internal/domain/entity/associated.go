@@ -1,9 +1,11 @@
-package dto
+package entity
 
 import (
 	"errors"
 	"reflect"
 	"strings"
+
+	"github.com/google/uuid"
 )
 
 type MaritalStatus string
@@ -15,6 +17,7 @@ const (
 )
 
 type Associated struct {
+	ID            uuid.UUID     `json:"id"`
 	CPF           string        `json:"cpf,omitempty"`
 	Name          string        `json:"name,omitempty"`
 	DateBirth     string        `json:"date_birth,omitempty"`

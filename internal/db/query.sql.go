@@ -10,9 +10,10 @@ import (
 )
 
 const createAssoc = `-- name: CreateAssoc :exec
-INSERT INTO associated
-(cpf, name, date_birth, marital_status)
-VALUES ($1, $2, $3, $4)
+INSERT INTO
+  associated (cpf, name, date_birth, marital_status)
+VALUES
+  ($1, $2, $3, $4)
 `
 
 type CreateAssocParams struct {
@@ -33,7 +34,10 @@ func (q *Queries) CreateAssoc(ctx context.Context, arg CreateAssocParams) error 
 }
 
 const getAssoc = `-- name: GetAssoc :exec
-SELECT cpf, name, date_birth, marital_status FROM associated
+SELECT
+  cpf, name, date_birth, marital_status
+FROM
+  associated
 `
 
 func (q *Queries) GetAssoc(ctx context.Context) error {

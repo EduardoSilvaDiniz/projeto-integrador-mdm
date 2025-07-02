@@ -10,7 +10,7 @@ import (
 )
 
 func Migration(conn *pgx.Conn) {
-	schemaSQL, err := os.ReadFile("../../schema.sql")
+	schemaSQL, err := os.ReadFile("schema.sql")
 	if err != nil {
 		log.Fatal(err)
 	}

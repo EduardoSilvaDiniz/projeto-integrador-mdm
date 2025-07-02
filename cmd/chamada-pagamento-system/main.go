@@ -2,8 +2,11 @@ package main
 
 import (
 	"chamada-pagamento-system/deployments"
+	"chamada-pagamento-system/internal/db"
 	"chamada-pagamento-system/internal/infra/repositories"
 	httpserver "chamada-pagamento-system/internal/transport/http-server"
+	"context"
+	"fmt"
 	"log"
 	"net/http"
 )
@@ -11,24 +14,24 @@ import (
 func main() {
 	conn := repositories.PgxConnect()
 	deployments.Migration(conn)
-	// queries := db.New(conn)
-	// ctx := context.Background()
-	//
-	// if err := queries.CreateAssoc(ctx, db.CreateAssocParams{
-	// 	Cpf:           123,
-	// 	Name:          "edu",
-	// 	DateBirth:     "1010",
-	// 	MaritalStatus: "lala",
-	// }); err != nil {
-	// 	fmt.Println("ERROR: ", err)
-	// 	return
-	// }
-	//
-	// err := queries.GetAssoc(ctx)
-	// if err != nil {
-	// 	fmt.Println("ERROR: ", err)
-	// 	return
-	// }
+	queries := db.New(conn)
+	ctx := context.Background()
+
+	if err := queries.CreateAssoc(ctx, db.CreateAssocParams{
+		Cpf:           123,
+		Name:          "edu",
+		DateBirth:     "1010",
+		MaritalStatus: "lala",
+	}); err != nil {
+		fmt.Println("ERROR: ", err)
+		return
+	}
+
+	err := queries.GetAssoc(ctx)
+	if err != nil {
+		fmt.Println("ERROR: ", err)
+		return
+	}
 
 	mux := http.NewServeMux()
 	httpserver.RegisterHandlers(mux)
