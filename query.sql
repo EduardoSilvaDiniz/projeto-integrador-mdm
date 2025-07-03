@@ -1,4 +1,4 @@
--- name: GetAssoc :exec
+-- name: GetAssoc :many
 SELECT
   *
 FROM

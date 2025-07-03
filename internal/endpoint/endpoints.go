@@ -1,9 +1,9 @@
-package httpserver
+package endpoint
 
 import (
-	// "chamada-pagamento-system/internal/domain/services"
-	// "chamada-pagamento-system/internal/infra/repositories"
-	// "chamada-pagamento-system/internal/transport/http-server/handlers"
+	"chamada-pagamento-system/internal/database"
+	"chamada-pagamento-system/internal/endpoint/handler/associated"
+	"chamada-pagamento-system/internal/infra/repositories"
 	"net/http"
 )
 
@@ -13,13 +13,18 @@ func pingPong(w http.ResponseWriter, _ *http.Request) {
 	}
 }
 
-func RegisterHandlers(mux *http.ServeMux) {
+func CreateEndpoints(mux *http.ServeMux) {
+	conn := repositories.PgxConnect()
+	queries := database.New(conn)
+	associatedService := associated.NewAssociatedService(queries)
+	handlers := associated.NewHandlers(associatedService)
+
 	// db := repositories.PostgresMigrate()
 	// repo := repositories.NewGormAssociatedRepository(db)
 	// service := services.NewAssociatedService(repo)
 
 	mux.HandleFunc("GET /ping", pingPong)
-	// mux.HandleFunc("GET /associated", handlers.GetAllAssociatedHandler(service))
+	mux.HandleFunc("GET /associated", handlers.AssociatedController.List())
 	// mux.HandleFunc("POST /associated", handlers.CreateAssociatedHandler(service))
 
 	// mux.HandleFunc("PUT /associated", handlers.MapEndpointsToAssoc)
