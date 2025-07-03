@@ -3,7 +3,7 @@
 //   sqlc v1.29.0
 // source: query.sql
 
-package db
+package database
 
 import (
 	"context"
@@ -33,14 +33,34 @@ func (q *Queries) CreateAssoc(ctx context.Context, arg CreateAssocParams) error 
 	return err
 }
 
-const getAssoc = `-- name: GetAssoc :exec
+const getAssoc = `-- name: GetAssoc :many
 SELECT
   cpf, name, date_birth, marital_status
 FROM
   associated
 `
 
-func (q *Queries) GetAssoc(ctx context.Context) error {
-	_, err := q.db.Exec(ctx, getAssoc)
-	return err
+func (q *Queries) GetAssoc(ctx context.Context) ([]Associated, error) {
+	rows, err := q.db.Query(ctx, getAssoc)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []Associated
+	for rows.Next() {
+		var i Associated
+		if err := rows.Scan(
+			&i.Cpf,
+			&i.Name,
+			&i.DateBirth,
+			&i.MaritalStatus,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
 }
