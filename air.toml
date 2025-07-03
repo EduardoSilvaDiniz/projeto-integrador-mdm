@@ -2,4 +2,4 @@ root = "."
 tmp_dir = "tmp"
 
 [build]
-cmd = "go build -o ./tmp/main ./cmd/chamada-pagamento-system/main.go"
+cmd = "go build -o ./tmp/main ./cmd/app/main.go"

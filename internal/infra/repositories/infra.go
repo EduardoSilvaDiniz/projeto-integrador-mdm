@@ -8,15 +8,13 @@ import (
 	"github.com/jackc/pgx/v5"
 )
 
-var config = "host=localhost user=postgres password=postgres dbname=postgres port=5432 sslmode=disable"
-
 var dbURL string = fmt.Sprintf(
 	"postgresql://%s:%s@%s:%s/%s",
-	"postgres",
-	"postgres",
-	"localhost",
-	"5432",
-	"postgres",
+	os.Getenv("PG_USERNAME"),
+	os.Getenv("PG_PASSWORD"),
+	os.Getenv("PG_HOST"),
+	os.Getenv("PG_PORT"),
+	os.Getenv("PG_DBNAME"),
 )
 
 func PgxConnect() *pgx.Conn {
