@@ -5,7 +5,7 @@
 package database
 
 type Associated struct {
-	Cpf           int64
+	Cpf           string
 	Name          string
 	DateBirth     string
 	MaritalStatus string

@@ -25,7 +25,7 @@ func CreateEndpoints(mux *http.ServeMux) {
 
 	mux.HandleFunc("GET /ping", pingPong)
 	mux.HandleFunc("GET /associated", handlers.AssociatedController.List())
-	// mux.HandleFunc("POST /associated", handlers.CreateAssociatedHandler(service))
+	mux.HandleFunc("POST /associated", handlers.AssociatedController.Create())
 
 	// mux.HandleFunc("PUT /associated", handlers.MapEndpointsToAssoc)
 	// mux.HandleFunc("DELETE /associated/{cpf}", handlers.DeleteAssoc)

@@ -2,19 +2,23 @@ package associated
 
 import (
 	"chamada-pagamento-system/internal/database"
+	"chamada-pagamento-system/internal/domain/entity"
+	"encoding/json"
 	"fmt"
 	"net/http"
 )
+
 type AssociatedController interface {
-	// Create() error
+	Create() http.HandlerFunc
 	// search() error
 	List() http.HandlerFunc
 	// delete() error
 }
 
-type AssociatedService struct{
+type AssociatedService struct {
 	queries *database.Queries
 }
+
 func NewAssociatedService(q *database.Queries) *AssociatedService {
 	return &AssociatedService{
 		queries: q,
@@ -23,11 +27,12 @@ func NewAssociatedService(q *database.Queries) *AssociatedService {
 
 func (a *AssociatedService) List() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
+
 		ctx := r.Context()
 		assocList, err := a.queries.GetAssoc(ctx)
-		
+
 		if err != nil {
-			http.Error(w, "erro ao listar assoc: " + err.Error(), http.StatusBadRequest)
+			http.Error(w, "erro ao listar assoc: "+err.Error(), http.StatusBadRequest)
 		}
 
 		if len(assocList) == 0 {
@@ -42,30 +47,37 @@ func (a *AssociatedService) List() http.HandlerFunc {
 	}
 }
 
-//
-// func CreateAssociatedHandler(svc *services.AssociatedService) http.HandlerFunc {
-// 	return func(w http.ResponseWriter, r *http.Request) {
-// 		var assoc dto.Associated
-//
-// 		if err := json.NewDecoder(r.Body).Decode(&assoc); err != nil {
-// 			http.Error(w, "JSON invalido: "+err.Error(), http.StatusBadRequest)
-// 			return
-// 		}
-//
-// 		if err := svc.Create(&assoc); err != nil {
-// 			response := map[string]string{
-// 				"error": err.Error(),
-// 			}
-//
-// 			w.WriteHeader(http.StatusBadRequest)
-// 			fmt.Fprintln(w, response)
-// 			return
-// 		}
-//
-// 		w.WriteHeader(http.StatusCreated)
-// 		fmt.Fprintln(w, assoc)
-// 	}
-// }
+func (a *AssociatedService) Create() http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		ctx := r.Context()
+		var assoc entity.Associated
+
+		if err := json.NewDecoder(r.Body).Decode(&assoc); err != nil {
+			http.Error(w, "JSON invalido: "+err.Error(), http.StatusBadRequest)
+			return
+		}
+
+		assocParam := database.CreateAssocParams{
+			Cpf:           assoc.CPF,
+			Name:          assoc.Name,
+			DateBirth:     assoc.DateBirth,
+			MaritalStatus: string(assoc.MaritalStatus),
+		}
+
+		if err := a.queries.CreateAssoc(ctx, assocParam); err != nil {
+			response := map[string]string{
+				"error": err.Error(),
+			}
+
+			w.WriteHeader(http.StatusBadRequest)
+			fmt.Fprintln(w, response)
+			return
+		}
+
+		w.WriteHeader(http.StatusCreated)
+		fmt.Fprintln(w, assoc)
+	}
+}
 
 // func DeleteAssocHandler(svc *services.AssociatedService) http.HandlerFunc {
 // return func(w http.ResponseWriter, r *http.Request) {
