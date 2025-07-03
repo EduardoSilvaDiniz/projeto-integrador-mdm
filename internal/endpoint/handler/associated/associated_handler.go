@@ -12,7 +12,7 @@ type AssociatedController interface {
 	Create() http.HandlerFunc
 	// search() error
 	List() http.HandlerFunc
-	// delete() error
+	Delete() http.HandlerFunc
 }
 
 type AssociatedService struct {
@@ -79,14 +79,15 @@ func (a *AssociatedService) Create() http.HandlerFunc {
 	}
 }
 
-// func DeleteAssocHandler(svc *services.AssociatedService) http.HandlerFunc {
-// return func(w http.ResponseWriter, r *http.Request) {
-// 	if err := svc.Repo.DeleteByCPF(r.PathValue("cpf")); err != nil {
-// 		http.Error(w, "erro ao remover associado: "+err.Error(), http.StatusBadRequest)
-// 		return
-// 	}
-//
-// 	w.WriteHeader(http.StatusOK)
-// 	fmt.Fprintln(w, "Associado deletado com sucesso")
-// }
-// }
+func (a *AssociatedService) Delete() http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		ctx := r.Context()
+		if err := a.queries.DeleteAssoc(ctx, r.PathValue("cpf")); err != nil {
+			http.Error(w, "erro ao remover associado: "+err.Error(), http.StatusBadRequest)
+			return
+		}
+
+		w.WriteHeader(http.StatusOK)
+		fmt.Fprintln(w, "Associado deletado com sucesso")
+	}
+}

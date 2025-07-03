@@ -33,6 +33,17 @@ func (q *Queries) CreateAssoc(ctx context.Context, arg CreateAssocParams) error 
 	return err
 }
 
+const deleteAssoc = `-- name: DeleteAssoc :exec
+DELETE FROM associated
+WHERE
+  (cpf=$1)
+`
+
+func (q *Queries) DeleteAssoc(ctx context.Context, cpf string) error {
+	_, err := q.db.Exec(ctx, deleteAssoc, cpf)
+	return err
+}
+
 const getAssoc = `-- name: GetAssoc :many
 SELECT
   cpf, name, date_birth, marital_status

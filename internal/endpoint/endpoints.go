@@ -28,5 +28,5 @@ func CreateEndpoints(mux *http.ServeMux) {
 	mux.HandleFunc("POST /associated", handlers.AssociatedController.Create())
 
 	// mux.HandleFunc("PUT /associated", handlers.MapEndpointsToAssoc)
-	// mux.HandleFunc("DELETE /associated/{cpf}", handlers.DeleteAssoc)
+	mux.HandleFunc("DELETE /associated/{cpf}", handlers.AssociatedController.Delete())
 }
