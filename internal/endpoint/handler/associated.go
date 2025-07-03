@@ -1,4 +1,4 @@
-package associated
+package handler
 
 import (
 	"chamada-pagamento-system/internal/database"
@@ -20,9 +20,7 @@ type AssociatedService struct {
 }
 
 func NewAssociatedService(q *database.Queries) *AssociatedService {
-	return &AssociatedService{
-		queries: q,
-	}
+	return &AssociatedService{queries: q}
 }
 
 func (a *AssociatedService) List() http.HandlerFunc {
