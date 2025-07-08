@@ -13,7 +13,7 @@ const createAssoc = `-- name: CreateAssoc :exec
 INSERT INTO
   associated (cpf, name, date_birth, marital_status)
 VALUES
-  ($1, $2, $3, $4)
+  (?, ?, ?, ?)
 `
 
 type CreateAssocParams struct {
@@ -24,7 +24,7 @@ type CreateAssocParams struct {
 }
 
 func (q *Queries) CreateAssoc(ctx context.Context, arg CreateAssocParams) error {
-	_, err := q.db.Exec(ctx, createAssoc,
+	_, err := q.db.ExecContext(ctx, createAssoc,
 		arg.Cpf,
 		arg.Name,
 		arg.DateBirth,
@@ -36,23 +36,23 @@ func (q *Queries) CreateAssoc(ctx context.Context, arg CreateAssocParams) error 
 const deleteAssoc = `-- name: DeleteAssoc :exec
 DELETE FROM associated
 WHERE
-  (cpf=$1)
+  (cpf = ?)
 `
 
 func (q *Queries) DeleteAssoc(ctx context.Context, cpf string) error {
-	_, err := q.db.Exec(ctx, deleteAssoc, cpf)
+	_, err := q.db.ExecContext(ctx, deleteAssoc, cpf)
 	return err
 }
 
 const getAssoc = `-- name: GetAssoc :many
 SELECT
-  cpf, name, date_birth, marital_status
+  id, cpf, name, date_birth, marital_status
 FROM
   associated
 `
 
 func (q *Queries) GetAssoc(ctx context.Context) ([]Associated, error) {
-	rows, err := q.db.Query(ctx, getAssoc)
+	rows, err := q.db.QueryContext(ctx, getAssoc)
 	if err != nil {
 		return nil, err
 	}
@@ -61,6 +61,7 @@ func (q *Queries) GetAssoc(ctx context.Context) ([]Associated, error) {
 	for rows.Next() {
 		var i Associated
 		if err := rows.Scan(
+			&i.ID,
 			&i.Cpf,
 			&i.Name,
 			&i.DateBirth,
@@ -69,6 +70,9 @@ func (q *Queries) GetAssoc(ctx context.Context) ([]Associated, error) {
 			return nil, err
 		}
 		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
 	}
 	if err := rows.Err(); err != nil {
 		return nil, err

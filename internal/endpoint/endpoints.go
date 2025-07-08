@@ -3,7 +3,6 @@ package endpoint
 import (
 	"chamada-pagamento-system/internal/database"
 	"chamada-pagamento-system/internal/endpoint/handler"
-	"chamada-pagamento-system/internal/infra/repositories"
 	"net/http"
 )
 
@@ -21,9 +20,7 @@ func NewHandlers(assoc handler.AssociatedController) *Handlers {
 	return &Handlers{AssociatedController: assoc}
 }
 
-func CreateEndpoints(mux *http.ServeMux) {
-	conn := repositories.PgxConnect()
-	queries := database.New(conn)
+func CreateEndpoints(mux *http.ServeMux, queries *database.Queries) {
 	associatedService := handler.NewAssociatedService(queries)
 	handlers := NewHandlers(associatedService)
 

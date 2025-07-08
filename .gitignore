@@ -1,3 +1,4 @@
 test.http
 tmp
 .env
+*.sqlite

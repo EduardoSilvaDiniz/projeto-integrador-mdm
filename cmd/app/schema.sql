@@ -1,3 +1,4 @@
+-- necessario para o go:embed
 CREATE TABLE associated (
 	id INTEGER PRIMARY KEY, 
 	cpf TEXT NOT NULL,
