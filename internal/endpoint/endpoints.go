@@ -16,8 +16,8 @@ type Handlers struct {
 	AssociatedController handler.AssociatedController
 }
 
-func NewHandlers(assoc handler.AssociatedController) *Handlers {
-	return &Handlers{AssociatedController: assoc}
+func NewHandlers(associatedService handler.AssociatedController) *Handlers {
+	return &Handlers{AssociatedController: associatedService}
 }
 
 func CreateEndpoints(mux *http.ServeMux, queries *database.Queries) {
@@ -29,6 +29,5 @@ func CreateEndpoints(mux *http.ServeMux, queries *database.Queries) {
 	// Associated
 	mux.HandleFunc("GET /associated", handlers.AssociatedController.List())
 	mux.HandleFunc("POST /associated", handlers.AssociatedController.Create())
-	// mux.HandleFunc("PUT /associated", handlers.MapEndpointsToAssoc)
-	mux.HandleFunc("DELETE /associated/{cpf}", handlers.AssociatedController.Delete())
+	mux.HandleFunc("DELETE /associated/{number_card}", handlers.AssociatedController.Delete())
 }

@@ -5,9 +5,6 @@
 package database
 
 type Associated struct {
-	ID            int64
-	Cpf           string
-	Name          string
-	DateBirth     string
-	MaritalStatus string
+	NumberCard int64
+	Name       string
 }

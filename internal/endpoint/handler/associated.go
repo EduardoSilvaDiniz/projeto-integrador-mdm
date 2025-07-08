@@ -5,41 +5,43 @@ import (
 	"chamada-pagamento-system/internal/domain/entity"
 	"encoding/json"
 	"fmt"
+	"log"
 	"net/http"
+	"strconv"
 )
 
 type AssociatedController interface {
 	Create() http.HandlerFunc
-	// search() error
 	List() http.HandlerFunc
 	Delete() http.HandlerFunc
 }
 
 type AssociatedService struct {
-	queries *database.Queries
+	repo *database.Queries
 }
 
-func NewAssociatedService(q *database.Queries) *AssociatedService {
-	return &AssociatedService{queries: q}
+func NewAssociatedService(queries *database.Queries) *AssociatedService {
+	return &AssociatedService{repo: queries}
 }
 
 func (a *AssociatedService) List() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 
 		ctx := r.Context()
-		assocList, err := a.queries.GetAssoc(ctx)
+		associatedList, err := a.repo.GetAssociated(ctx)
 
 		if err != nil {
-			http.Error(w, "erro ao listar assoc: "+err.Error(), http.StatusBadRequest)
+			http.Error(w, "erro na execução GetAssociated: "+err.Error(), http.StatusBadRequest)
+			return
 		}
 
-		if len(assocList) == 0 {
+		if len(associatedList) == 0 {
 			http.Error(w, "nenhum associado encontrado", http.StatusNotFound)
 			return
 		}
 
 		w.WriteHeader(http.StatusOK)
-		for _, assoc := range assocList {
+		for _, assoc := range associatedList {
 			fmt.Fprintf(w, "%+v\n", assoc)
 		}
 	}
@@ -55,14 +57,12 @@ func (a *AssociatedService) Create() http.HandlerFunc {
 			return
 		}
 
-		assocParam := database.CreateAssocParams{
-			Cpf:           assoc.CPF,
-			Name:          assoc.Name,
-			DateBirth:     assoc.DateBirth,
-			MaritalStatus: string(assoc.MaritalStatus),
+		associatedParam := database.CreateAssociatedParams{
+			NumberCard: assoc.NumberCard,
+			Name:       assoc.Name,
 		}
 
-		if err := a.queries.CreateAssoc(ctx, assocParam); err != nil {
+		if err := a.repo.CreateAssociated(ctx, associatedParam); err != nil {
 			response := map[string]string{
 				"error": err.Error(),
 			}
@@ -80,8 +80,28 @@ func (a *AssociatedService) Create() http.HandlerFunc {
 func (a *AssociatedService) Delete() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		ctx := r.Context()
-		if err := a.queries.DeleteAssoc(ctx, r.PathValue("cpf")); err != nil {
+		getCode := r.PathValue("number_card")
+		conv, err := strconv.ParseInt(getCode, 10, 32)
+
+		if err != nil {
+			log.Fatalln(err)
+		}
+
+		result, err := a.repo.DeleteAssociatedByNumberCard(ctx, conv)
+		if err != nil {
 			http.Error(w, "erro ao remover associado: "+err.Error(), http.StatusBadRequest)
+			return
+		}
+
+		rows, err := result.RowsAffected()
+		if err != nil {
+			log.Println("Erro ao verificar rows affected:", err)
+			http.Error(w, "Erro interno", http.StatusInternalServerError)
+			return
+		}
+
+		if rows == 0 {
+			http.Error(w, "Registro não encontrado", http.StatusInternalServerError)
 			return
 		}
 

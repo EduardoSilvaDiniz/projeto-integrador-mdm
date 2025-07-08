@@ -1,16 +1,16 @@
--- name: GetAssoc :many
+-- name: GetAssociated :many
 SELECT
   *
 FROM
   associated;
 
--- name: CreateAssoc :exec
+-- name: CreateAssociated :exec
 INSERT INTO
-  associated (cpf, name, date_birth, marital_status)
+  associated (number_card, name)
 VALUES
-  (?, ?, ?, ?);
+  (?, ?);
 
--- name: DeleteAssoc :exec
+-- name: DeleteAssociatedByNumberCard :execresult
 DELETE FROM associated
 WHERE
-  (cpf = ?);
+  number_card = ?;

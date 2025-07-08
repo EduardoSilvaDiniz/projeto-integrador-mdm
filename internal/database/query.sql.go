@@ -7,52 +7,45 @@ package database
 
 import (
 	"context"
+	"database/sql"
 )
 
-const createAssoc = `-- name: CreateAssoc :exec
+const createAssociated = `-- name: CreateAssociated :exec
 INSERT INTO
-  associated (cpf, name, date_birth, marital_status)
+  associated (number_card, name)
 VALUES
-  (?, ?, ?, ?)
+  (?, ?)
 `
 
-type CreateAssocParams struct {
-	Cpf           string
-	Name          string
-	DateBirth     string
-	MaritalStatus string
+type CreateAssociatedParams struct {
+	NumberCard int64
+	Name       string
 }
 
-func (q *Queries) CreateAssoc(ctx context.Context, arg CreateAssocParams) error {
-	_, err := q.db.ExecContext(ctx, createAssoc,
-		arg.Cpf,
-		arg.Name,
-		arg.DateBirth,
-		arg.MaritalStatus,
-	)
+func (q *Queries) CreateAssociated(ctx context.Context, arg CreateAssociatedParams) error {
+	_, err := q.db.ExecContext(ctx, createAssociated, arg.NumberCard, arg.Name)
 	return err
 }
 
-const deleteAssoc = `-- name: DeleteAssoc :exec
+const deleteAssociatedByNumberCard = `-- name: DeleteAssociatedByNumberCard :execresult
 DELETE FROM associated
 WHERE
-  (cpf = ?)
+  number_card = ?
 `
 
-func (q *Queries) DeleteAssoc(ctx context.Context, cpf string) error {
-	_, err := q.db.ExecContext(ctx, deleteAssoc, cpf)
-	return err
+func (q *Queries) DeleteAssociatedByNumberCard(ctx context.Context, numberCard int64) (sql.Result, error) {
+	return q.db.ExecContext(ctx, deleteAssociatedByNumberCard, numberCard)
 }
 
-const getAssoc = `-- name: GetAssoc :many
+const getAssociated = `-- name: GetAssociated :many
 SELECT
-  id, cpf, name, date_birth, marital_status
+  number_card, name
 FROM
   associated
 `
 
-func (q *Queries) GetAssoc(ctx context.Context) ([]Associated, error) {
-	rows, err := q.db.QueryContext(ctx, getAssoc)
+func (q *Queries) GetAssociated(ctx context.Context) ([]Associated, error) {
+	rows, err := q.db.QueryContext(ctx, getAssociated)
 	if err != nil {
 		return nil, err
 	}
@@ -60,13 +53,7 @@ func (q *Queries) GetAssoc(ctx context.Context) ([]Associated, error) {
 	var items []Associated
 	for rows.Next() {
 		var i Associated
-		if err := rows.Scan(
-			&i.ID,
-			&i.Cpf,
-			&i.Name,
-			&i.DateBirth,
-			&i.MaritalStatus,
-		); err != nil {
+		if err := rows.Scan(&i.NumberCard, &i.Name); err != nil {
 			return nil, err
 		}
 		items = append(items, i)
