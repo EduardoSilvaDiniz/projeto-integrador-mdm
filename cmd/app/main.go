@@ -37,7 +37,7 @@ func main() {
 	log.Println("iniciando conexão com banco...")
 	queries, err := run()
 	if err != nil {
-		log.Fatal(err)
+		log.Panic(err)
 	}
 	log.Println("done")
 
