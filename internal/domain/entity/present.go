@@ -1,11 +1,9 @@
 package entity
 
-import "github.com/google/uuid"
-
 type Present struct {
-	ID         uuid.UUID  `json:"id"`
-	Meeting    Meeting    `json:"meeting,omitempty"`
-	Associated Associated `json:"associated,omitempty"`
+	ID         int64      `json:"id"`
+	Meeting    Meeting    `json:"meeting"`
+	Associated Associated `json:"associated"`
 	Date       string     `json:"date,omitempty"`
 	Present    bool       `json:"present,omitempty"`
 }
