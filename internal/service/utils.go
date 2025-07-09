@@ -1,4 +1,4 @@
-package handler
+package service
 
 import (
 	"errors"
@@ -15,7 +15,7 @@ func IsValid(a any) error {
 		fieldValue := v.Field(i)
 		fieldName := t.Field(i).Name
 
-		if fieldValue.Kind() == reflect.String && strings.TrimSpace(fieldValue.String()) == "" {
+		if fieldValue.Kind() == reflect.String && strings.TrimSpace(fieldValue.String()) == "" || strings.TrimSpace(fieldValue.String()) == "0"{
 			listErrors = append(listErrors, "campo "+fieldName+" esta vazio")
 		}
 	}
