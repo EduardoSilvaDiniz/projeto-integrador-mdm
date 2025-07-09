@@ -4,7 +4,6 @@ import (
 	"chamada-pagamento-system/internal/database"
 	"chamada-pagamento-system/internal/domain"
 	"context"
-	"encoding/json"
 	"io"
 	"strconv"
 )
@@ -27,27 +26,17 @@ func (s *associatedService) List(ctx context.Context) ([]database.Associated, er
 	return s.repo.GetAssociated(ctx)
 }
 
-func (s *associatedService) Create(ctx context.Context, body io.ReadCloser) (*domain.Associated, error){
-	var associatedObject domain.Associated
-
-	if err := json.NewDecoder(body).Decode(&associatedObject); err != nil {
+func (s *associatedService) Create(ctx context.Context, body io.ReadCloser) (*domain.Associated, error) {
+	associatedParams, err := serialization[domain.Associated, database.CreateAssociatedParams](body)
+	if err != nil {
 		return nil, err
-	}
-
-	if err := IsValid(associatedObject); err != nil {
-		return nil, err
-	}
-
-	associatedParams := database.CreateAssociatedParams{
-		NumberCard: associatedObject.NumberCard,
-		Name:       associatedObject.Name,
 	}
 
 	if err := s.repo.CreateAssociated(ctx, associatedParams); err != nil {
 		return nil, err
 	}
 
-	return &associatedObject, nil
+	return nil, nil
 }
 
 func (s *associatedService) Delete(ctx context.Context, numberCard string) (int64, error) {
