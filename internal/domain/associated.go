@@ -1,4 +1,4 @@
-package entity
+package domain
 
 type Associated struct {
 	NumberCard int64  `json:"number_card"`

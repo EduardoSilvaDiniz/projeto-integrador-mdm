@@ -1,4 +1,4 @@
-package entity
+package domain
 
 type Group struct {
 	ID    int64  `json:"id"`

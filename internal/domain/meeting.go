@@ -1,4 +1,4 @@
-package entity
+package domain
 
 type Meeting struct {
 	ID        int64  `json:"id"`
