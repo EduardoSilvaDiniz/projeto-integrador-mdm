@@ -1,3 +1,4 @@
+-- ASSOCIATED
 -- name: GetAssociated :many
 SELECT
   *
@@ -6,11 +7,142 @@ FROM
 
 -- name: CreateAssociated :exec
 INSERT INTO
-  associated (number_card, name)
+  associated (number_card, name, group_id)
 VALUES
-  (?, ?);
+  (?, ?, ?);
 
 -- name: DeleteAssociatedByNumberCard :execresult
 DELETE FROM associated
 WHERE
   number_card = ?;
+
+-- name: GetAssociatedByGroup :many
+SELECT
+  *
+FROM
+  associated
+WHERE
+  group_id = ?;
+
+-- GROUPS
+-- name: GetGroups :many
+SELECT
+  *
+FROM
+  groups;
+
+-- name: CreateGroup :exec
+INSERT INTO
+  groups (name)
+VALUES
+  (?);
+
+-- name: DeleteGroupById :execresult
+DELETE FROM groups
+WHERE
+  id = ?;
+
+-- MEETING
+-- name: CreateMeeting :exec
+INSERT INTO
+  meeting (group_id, address, date)
+VALUES
+  (?, ?, ?);
+
+-- name: GetMeetings :many
+SELECT
+  *
+FROM
+  meeting;
+
+-- name: DeleteMeetingById :execresult
+DELETE FROM meeting
+WHERE
+  id = ?;
+
+-- name: GetMeetingsByGroup :many
+SELECT
+  *
+FROM
+  meeting
+WHERE
+  group_id = ?;
+
+-- PRESENCE
+-- name: GetPresence :many
+SELECT
+  *
+FROM
+  presence;
+
+-- name: GetPresenceByMeeting :many
+SELECT
+  *
+FROM
+  presence
+WHERE
+  meeting_id = ?;
+
+-- name: GetPresenceByAssociated :many
+SELECT
+  *
+FROM
+  presence
+WHERE
+  number_card = ?;
+
+-- name: CreatePresence :exec
+INSERT INTO
+  presence (number_card, meeting_id, date, present)
+VALUES
+  (?, ?, ?, ?);
+
+-- name: DeletePresenceByCompositeKey :exec
+DELETE FROM presence
+WHERE
+  number_card = ?
+  AND meeting_id = ?;
+
+-- PAYMENT
+-- name: GetPayments :many
+SELECT
+  *
+FROM
+  payment;
+
+-- name: GetPaymentsByAssociated :many
+SELECT
+  *
+FROM
+  payment
+WHERE
+  number_card = ?;
+
+-- name: GetPaymentByMonthYear :many
+SELECT
+  *
+FROM
+  payment
+WHERE
+  strftime ('%m', ref_month) = ?
+  AND strftime ('%Y', ref_month) = ?;
+
+-- name: CreatePayment :exec
+INSERT INTO
+  payment (number_card, ref_month, payment_date)
+VALUES
+  (?, ?, ?);
+
+-- name: DeletePaymentById :execresult
+DELETE FROM payment
+WHERE
+  id = ?;
+
+-- name: CheckPaymentExists :one
+SELECT
+  1
+FROM
+  payment
+WHERE
+  number_card = ?
+  AND ref_month = ?;

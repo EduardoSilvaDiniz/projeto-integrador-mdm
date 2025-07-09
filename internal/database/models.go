@@ -11,11 +11,31 @@ import (
 type Associated struct {
 	NumberCard int64
 	Name       string
+	GroupID    int64
 }
 
-type Present struct {
-	AssociatedID int64
-	MeetingID    int64
-	Date         time.Time
-	Present      bool
+type Group struct {
+	ID   int64
+	Name string
+}
+
+type Meeting struct {
+	ID      int64
+	GroupID int64
+	Address string
+	Date    time.Time
+}
+
+type Payment struct {
+	ID          interface{}
+	NumberCard  int64
+	RefMonth    string
+	PaymentDate time.Time
+}
+
+type Presence struct {
+	NumberCard int64
+	MeetingID  int64
+	Date       time.Time
+	Present    bool
 }

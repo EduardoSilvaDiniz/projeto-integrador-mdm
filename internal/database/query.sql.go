@@ -8,42 +8,165 @@ package database
 import (
 	"context"
 	"database/sql"
+	"time"
 )
 
+const checkPaymentExists = `-- name: CheckPaymentExists :one
+SELECT 1 FROM payment
+WHERE number_card = ? AND ref_month = ?
+`
+
+type CheckPaymentExistsParams struct {
+	NumberCard int64
+	RefMonth   string
+}
+
+func (q *Queries) CheckPaymentExists(ctx context.Context, arg CheckPaymentExistsParams) (int64, error) {
+	row := q.db.QueryRowContext(ctx, checkPaymentExists, arg.NumberCard, arg.RefMonth)
+	var column_1 int64
+	err := row.Scan(&column_1)
+	return column_1, err
+}
+
 const createAssociated = `-- name: CreateAssociated :exec
-INSERT INTO
-  associated (number_card, name)
-VALUES
-  (?, ?)
+INSERT INTO associated (number_card, name, group_id)
+VALUES (?, ?, ?)
 `
 
 type CreateAssociatedParams struct {
 	NumberCard int64
 	Name       string
+	GroupID    int64
 }
 
 func (q *Queries) CreateAssociated(ctx context.Context, arg CreateAssociatedParams) error {
-	_, err := q.db.ExecContext(ctx, createAssociated, arg.NumberCard, arg.Name)
+	_, err := q.db.ExecContext(ctx, createAssociated, arg.NumberCard, arg.Name, arg.GroupID)
+	return err
+}
+
+const createGroup = `-- name: CreateGroup :exec
+INSERT INTO groups (name)
+VALUES (?)
+`
+
+func (q *Queries) CreateGroup(ctx context.Context, name string) error {
+	_, err := q.db.ExecContext(ctx, createGroup, name)
+	return err
+}
+
+const createMeeting = `-- name: CreateMeeting :exec
+
+INSERT INTO meeting (group_id, address, date)
+VALUES (?, ?, ?)
+`
+
+type CreateMeetingParams struct {
+	GroupID int64
+	Address string
+	Date    time.Time
+}
+
+// MEETING
+func (q *Queries) CreateMeeting(ctx context.Context, arg CreateMeetingParams) error {
+	_, err := q.db.ExecContext(ctx, createMeeting, arg.GroupID, arg.Address, arg.Date)
+	return err
+}
+
+const createPayment = `-- name: CreatePayment :exec
+INSERT INTO payment (number_card, ref_month, payment_date)
+VALUES (?, ?, ?)
+`
+
+type CreatePaymentParams struct {
+	NumberCard  int64
+	RefMonth    string
+	PaymentDate time.Time
+}
+
+func (q *Queries) CreatePayment(ctx context.Context, arg CreatePaymentParams) error {
+	_, err := q.db.ExecContext(ctx, createPayment, arg.NumberCard, arg.RefMonth, arg.PaymentDate)
+	return err
+}
+
+const createPresence = `-- name: CreatePresence :exec
+INSERT INTO presence (number_card, meeting_id, date, present)
+VALUES (?, ?, ?, ?)
+`
+
+type CreatePresenceParams struct {
+	NumberCard int64
+	MeetingID  int64
+	Date       time.Time
+	Present    bool
+}
+
+func (q *Queries) CreatePresence(ctx context.Context, arg CreatePresenceParams) error {
+	_, err := q.db.ExecContext(ctx, createPresence,
+		arg.NumberCard,
+		arg.MeetingID,
+		arg.Date,
+		arg.Present,
+	)
 	return err
 }
 
 const deleteAssociatedByNumberCard = `-- name: DeleteAssociatedByNumberCard :execresult
 DELETE FROM associated
-WHERE
-  number_card = ?
+WHERE number_card = ?
 `
 
 func (q *Queries) DeleteAssociatedByNumberCard(ctx context.Context, numberCard int64) (sql.Result, error) {
 	return q.db.ExecContext(ctx, deleteAssociatedByNumberCard, numberCard)
 }
 
-const getAssociated = `-- name: GetAssociated :many
-SELECT
-  number_card, name
-FROM
-  associated
+const deleteGroupById = `-- name: DeleteGroupById :execresult
+DELETE FROM groups
+WHERE id = ?
 `
 
+func (q *Queries) DeleteGroupById(ctx context.Context, id int64) (sql.Result, error) {
+	return q.db.ExecContext(ctx, deleteGroupById, id)
+}
+
+const deleteMeetingById = `-- name: DeleteMeetingById :execresult
+DELETE FROM meeting
+WHERE id = ?
+`
+
+func (q *Queries) DeleteMeetingById(ctx context.Context, id int64) (sql.Result, error) {
+	return q.db.ExecContext(ctx, deleteMeetingById, id)
+}
+
+const deletePaymentById = `-- name: DeletePaymentById :execresult
+DELETE FROM payment
+WHERE id = ?
+`
+
+func (q *Queries) DeletePaymentById(ctx context.Context, id interface{}) (sql.Result, error) {
+	return q.db.ExecContext(ctx, deletePaymentById, id)
+}
+
+const deletePresenceByCompositeKey = `-- name: DeletePresenceByCompositeKey :exec
+DELETE FROM presence
+WHERE number_card = ? AND meeting_id = ?
+`
+
+type DeletePresenceByCompositeKeyParams struct {
+	NumberCard int64
+	MeetingID  int64
+}
+
+func (q *Queries) DeletePresenceByCompositeKey(ctx context.Context, arg DeletePresenceByCompositeKeyParams) error {
+	_, err := q.db.ExecContext(ctx, deletePresenceByCompositeKey, arg.NumberCard, arg.MeetingID)
+	return err
+}
+
+const getAssociated = `-- name: GetAssociated :many
+
+SELECT number_card, name, group_id FROM associated
+`
+
+// ASSOCIATED
 func (q *Queries) GetAssociated(ctx context.Context) ([]Associated, error) {
 	rows, err := q.db.QueryContext(ctx, getAssociated)
 	if err != nil {
@@ -53,7 +176,334 @@ func (q *Queries) GetAssociated(ctx context.Context) ([]Associated, error) {
 	var items []Associated
 	for rows.Next() {
 		var i Associated
-		if err := rows.Scan(&i.NumberCard, &i.Name); err != nil {
+		if err := rows.Scan(&i.NumberCard, &i.Name, &i.GroupID); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const getAssociatedByGroup = `-- name: GetAssociatedByGroup :many
+SELECT number_card, name, group_id FROM associated
+WHERE group_id = ?
+`
+
+func (q *Queries) GetAssociatedByGroup(ctx context.Context, groupID int64) ([]Associated, error) {
+	rows, err := q.db.QueryContext(ctx, getAssociatedByGroup, groupID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []Associated
+	for rows.Next() {
+		var i Associated
+		if err := rows.Scan(&i.NumberCard, &i.Name, &i.GroupID); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const getGroups = `-- name: GetGroups :many
+
+SELECT id, name FROM groups
+`
+
+// GROUPS
+func (q *Queries) GetGroups(ctx context.Context) ([]Group, error) {
+	rows, err := q.db.QueryContext(ctx, getGroups)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []Group
+	for rows.Next() {
+		var i Group
+		if err := rows.Scan(&i.ID, &i.Name); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const getMeetings = `-- name: GetMeetings :many
+SELECT id, group_id, address, date FROM meeting
+`
+
+func (q *Queries) GetMeetings(ctx context.Context) ([]Meeting, error) {
+	rows, err := q.db.QueryContext(ctx, getMeetings)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []Meeting
+	for rows.Next() {
+		var i Meeting
+		if err := rows.Scan(
+			&i.ID,
+			&i.GroupID,
+			&i.Address,
+			&i.Date,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const getMeetingsByGroup = `-- name: GetMeetingsByGroup :many
+SELECT id, group_id, address, date FROM meeting
+WHERE group_id = ?
+`
+
+func (q *Queries) GetMeetingsByGroup(ctx context.Context, groupID int64) ([]Meeting, error) {
+	rows, err := q.db.QueryContext(ctx, getMeetingsByGroup, groupID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []Meeting
+	for rows.Next() {
+		var i Meeting
+		if err := rows.Scan(
+			&i.ID,
+			&i.GroupID,
+			&i.Address,
+			&i.Date,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const getPaymentByMonthYear = `-- name: GetPaymentByMonthYear :many
+SELECT id, number_card, ref_month, payment_date FROM payment
+WHERE strftime('%m', ref_month) = ? AND strftime('%Y', ref_month) = ?
+`
+
+type GetPaymentByMonthYearParams struct {
+	RefMonth   string
+	RefMonth_2 string
+}
+
+func (q *Queries) GetPaymentByMonthYear(ctx context.Context, arg GetPaymentByMonthYearParams) ([]Payment, error) {
+	rows, err := q.db.QueryContext(ctx, getPaymentByMonthYear, arg.RefMonth, arg.RefMonth_2)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []Payment
+	for rows.Next() {
+		var i Payment
+		if err := rows.Scan(
+			&i.ID,
+			&i.NumberCard,
+			&i.RefMonth,
+			&i.PaymentDate,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const getPayments = `-- name: GetPayments :many
+
+SELECT id, number_card, ref_month, payment_date FROM payment
+`
+
+// PAYMENT
+func (q *Queries) GetPayments(ctx context.Context) ([]Payment, error) {
+	rows, err := q.db.QueryContext(ctx, getPayments)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []Payment
+	for rows.Next() {
+		var i Payment
+		if err := rows.Scan(
+			&i.ID,
+			&i.NumberCard,
+			&i.RefMonth,
+			&i.PaymentDate,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const getPaymentsByAssociated = `-- name: GetPaymentsByAssociated :many
+SELECT id, number_card, ref_month, payment_date FROM payment
+WHERE number_card = ?
+`
+
+func (q *Queries) GetPaymentsByAssociated(ctx context.Context, numberCard int64) ([]Payment, error) {
+	rows, err := q.db.QueryContext(ctx, getPaymentsByAssociated, numberCard)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []Payment
+	for rows.Next() {
+		var i Payment
+		if err := rows.Scan(
+			&i.ID,
+			&i.NumberCard,
+			&i.RefMonth,
+			&i.PaymentDate,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const getPresence = `-- name: GetPresence :many
+
+SELECT number_card, meeting_id, date, present FROM presence
+`
+
+// PRESENCE
+func (q *Queries) GetPresence(ctx context.Context) ([]Presence, error) {
+	rows, err := q.db.QueryContext(ctx, getPresence)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []Presence
+	for rows.Next() {
+		var i Presence
+		if err := rows.Scan(
+			&i.NumberCard,
+			&i.MeetingID,
+			&i.Date,
+			&i.Present,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const getPresenceByAssociated = `-- name: GetPresenceByAssociated :many
+SELECT number_card, meeting_id, date, present FROM presence
+WHERE number_card = ?
+`
+
+func (q *Queries) GetPresenceByAssociated(ctx context.Context, numberCard int64) ([]Presence, error) {
+	rows, err := q.db.QueryContext(ctx, getPresenceByAssociated, numberCard)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []Presence
+	for rows.Next() {
+		var i Presence
+		if err := rows.Scan(
+			&i.NumberCard,
+			&i.MeetingID,
+			&i.Date,
+			&i.Present,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const getPresenceByMeeting = `-- name: GetPresenceByMeeting :many
+SELECT number_card, meeting_id, date, present FROM presence
+WHERE meeting_id = ?
+`
+
+func (q *Queries) GetPresenceByMeeting(ctx context.Context, meetingID int64) ([]Presence, error) {
+	rows, err := q.db.QueryContext(ctx, getPresenceByMeeting, meetingID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []Presence
+	for rows.Next() {
+		var i Presence
+		if err := rows.Scan(
+			&i.NumberCard,
+			&i.MeetingID,
+			&i.Date,
+			&i.Present,
+		); err != nil {
 			return nil, err
 		}
 		items = append(items, i)
