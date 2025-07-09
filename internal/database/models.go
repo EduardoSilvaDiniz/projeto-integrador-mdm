@@ -4,7 +4,18 @@
 
 package database
 
+import (
+	"time"
+)
+
 type Associated struct {
 	NumberCard int64
 	Name       string
+}
+
+type Present struct {
+	AssociatedID int64
+	MeetingID    int64
+	Date         time.Time
+	Present      bool
 }
