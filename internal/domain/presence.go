@@ -1,6 +1,6 @@
 package domain
 
-type Present struct {
+type Presence struct {
 	ID         int64  `json:"id"`
 	IDMeeting  int64  `json:"meeting"`
 	NumberCard int64  `json:"associated"`
