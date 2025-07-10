@@ -27,7 +27,7 @@ type Meeting struct {
 }
 
 type Payment struct {
-	ID          interface{}
+	ID          int64
 	NumberCard  int64
 	RefMonth    string
 	PaymentDate time.Time

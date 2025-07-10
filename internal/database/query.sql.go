@@ -160,7 +160,7 @@ WHERE
   id = ?
 `
 
-func (q *Queries) DeletePaymentById(ctx context.Context, id interface{}) (sql.Result, error) {
+func (q *Queries) DeletePaymentById(ctx context.Context, id int64) (sql.Result, error) {
 	return q.db.ExecContext(ctx, deletePaymentById, id)
 }
 
@@ -425,8 +425,8 @@ SELECT
 FROM
   payment
 WHERE
-  strftime ('%m', ref_month) = ?
-  AND strftime ('%Y', ref_month) = ?
+  strftime('%m', ref_month) = ?
+  AND strftime('%Y', ref_month) = ?
 `
 
 type GetPaymentByMonthYearParams struct {
@@ -570,4 +570,87 @@ func (q *Queries) GetPresenceByMeeting(ctx context.Context, meetingID int64) ([]
 		return nil, err
 	}
 	return items, nil
+}
+
+const updateAssociated = `-- name: UpdateAssociated :exec
+UPDATE associated
+SET
+  name = ?
+WHERE
+  number_card = ?
+`
+
+type UpdateAssociatedParams struct {
+	Name       string
+	NumberCard int64
+}
+
+func (q *Queries) UpdateAssociated(ctx context.Context, arg UpdateAssociatedParams) error {
+	_, err := q.db.ExecContext(ctx, updateAssociated, arg.Name, arg.NumberCard)
+	return err
+}
+
+const updateGroup = `-- name: UpdateGroup :exec
+UPDATE groups
+SET
+  name = ?
+WHERE
+  id = ?
+`
+
+type UpdateGroupParams struct {
+	Name string
+	ID   int64
+}
+
+func (q *Queries) UpdateGroup(ctx context.Context, arg UpdateGroupParams) error {
+	_, err := q.db.ExecContext(ctx, updateGroup, arg.Name, arg.ID)
+	return err
+}
+
+const updateMeeting = `-- name: UpdateMeeting :exec
+UPDATE meeting
+SET
+  group_id = ?,
+  address = ?,
+  date = ?
+WHERE
+  id = ?
+`
+
+type UpdateMeetingParams struct {
+	GroupID int64
+	Address string
+	Date    time.Time
+	ID      int64
+}
+
+func (q *Queries) UpdateMeeting(ctx context.Context, arg UpdateMeetingParams) error {
+	_, err := q.db.ExecContext(ctx, updateMeeting,
+		arg.GroupID,
+		arg.Address,
+		arg.Date,
+		arg.ID,
+	)
+	return err
+}
+
+const updatePayment = `-- name: UpdatePayment :exec
+UPDATE payment
+SET
+  ref_month = ?,
+  payment_date = ?
+WHERE
+  id = ?
+`
+
+type UpdatePaymentParams struct {
+	RefMonth    string
+	PaymentDate time.Time
+	ID          int64
+}
+
+func (q *Queries) UpdatePayment(ctx context.Context, arg UpdatePaymentParams) error {
+	_, err := q.db.ExecContext(ctx, updatePayment, arg.RefMonth, arg.PaymentDate, arg.ID)
+	return err
 }
