@@ -18,6 +18,8 @@ func CreateRouter(mux *http.ServeMux, queries *database.Queries) {
 	associatedHandler := handler.NewAssociatedHandler(associatedService)
 	presenceService := service.NewPresenceService(queries)
 	presenceHandler := handler.NewPresenceHandler(presenceService)
+	paymentService := service.NewPaymentService(queries)
+	paymentHandler := handler.NewPaymentHandler(paymentService)
 
 	mux.HandleFunc("GET /ping", PingPong)
 
@@ -28,4 +30,8 @@ func CreateRouter(mux *http.ServeMux, queries *database.Queries) {
 	mux.HandleFunc("GET /presence", presenceHandler.List())
 	mux.HandleFunc("POST /presence", presenceHandler.Create())
 	mux.HandleFunc("DELETE /presence", presenceHandler.Delete())
+
+	mux.HandleFunc("GET /payment", paymentHandler.List())
+	mux.HandleFunc("POST /payment", paymentHandler.Create())
+	mux.HandleFunc("DELETE /payment/{payment_id}", paymentHandler.Delete())
 }
