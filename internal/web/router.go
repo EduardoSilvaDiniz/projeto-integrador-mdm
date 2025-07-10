@@ -25,5 +25,7 @@ func CreateRouter(mux *http.ServeMux, queries *database.Queries) {
 	mux.HandleFunc("POST /associated", associatedHandler.Create())
 	mux.HandleFunc("DELETE /associated/{number_card}", associatedHandler.Delete())
 
-	mux.HandleFunc("GET /presence", presenceHandler.Create())
+	mux.HandleFunc("GET /presence", presenceHandler.List())
+	mux.HandleFunc("POST /presence", presenceHandler.Create())
+	mux.HandleFunc("DELETE /presence", presenceHandler.Delete())
 }
