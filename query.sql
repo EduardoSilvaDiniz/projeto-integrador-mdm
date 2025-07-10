@@ -11,6 +11,13 @@ INSERT INTO
 VALUES
   (?, ?, ?);
 
+-- name: UpdateAssociated :exec
+UPDATE associated
+SET
+  name = ?
+WHERE
+  number_card = ?;
+
 -- name: DeleteAssociatedByNumberCard :execresult
 DELETE FROM associated
 WHERE
@@ -37,6 +44,13 @@ INSERT INTO
 VALUES
   (?);
 
+-- name: UpdateGroup :exec
+UPDATE groups
+SET
+  name = ?
+WHERE
+  id = ?;
+
 -- name: DeleteGroupById :execresult
 DELETE FROM groups
 WHERE
@@ -54,6 +68,15 @@ SELECT
   *
 FROM
   meeting;
+
+-- name: UpdateMeeting :exec
+UPDATE meeting
+SET
+  group_id = ?,
+  address = ?,
+  date = ?
+WHERE
+  id = ?;
 
 -- name: DeleteMeetingById :execresult
 DELETE FROM meeting
@@ -124,14 +147,22 @@ SELECT
 FROM
   payment
 WHERE
-  strftime ('%m', ref_month) = ?
-  AND strftime ('%Y', ref_month) = ?;
+  strftime('%m', ref_month) = ?
+  AND strftime('%Y', ref_month) = ?;
 
 -- name: CreatePayment :exec
 INSERT INTO
   payment (number_card, ref_month, payment_date)
 VALUES
   (?, ?, ?);
+
+-- name: UpdatePayment :exec
+UPDATE payment
+SET
+  ref_month = ?,
+  payment_date = ?
+WHERE
+  id = ?;
 
 -- name: DeletePaymentById :execresult
 DELETE FROM payment
