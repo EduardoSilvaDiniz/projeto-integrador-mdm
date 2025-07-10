@@ -59,8 +59,8 @@ func (h *PaymentHandler) List() http.HandlerFunc {
 func (h *PaymentHandler) Delete() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		ctx := r.Context()
-		cardNumber := r.PathValue("number_card")
-		rows, err := h.service.Delete(ctx, cardNumber)
+		id := r.PathValue("payment_id")
+		rows, err := h.service.Delete(ctx, id)
 		if err != nil {
 			http.Error(w, "Error de execução Delete: "+err.Error(), http.StatusInternalServerError)
 			return
@@ -73,7 +73,7 @@ func (h *PaymentHandler) Delete() http.HandlerFunc {
 
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
-		if err := json.NewEncoder(w).Encode(cardNumber); err != nil {
+		if err := json.NewEncoder(w).Encode(id); err != nil {
 			http.Error(w, "Erro de execução JSON encode: "+err.Error(), http.StatusInternalServerError)
 		}
 	}
