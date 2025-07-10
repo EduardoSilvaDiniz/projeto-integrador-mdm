@@ -37,5 +37,5 @@ type Presence struct {
 	NumberCard int64
 	MeetingID  int64
 	Date       time.Time
-	Present    bool
+	IsPresence bool
 }

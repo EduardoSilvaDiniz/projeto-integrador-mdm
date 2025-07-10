@@ -126,7 +126,7 @@ FROM
 SELECT
   *
 FROM
-  present
+  presence
 WHERE
   number_card = ?
   AND meeting_id = ?;
@@ -149,7 +149,7 @@ WHERE
 
 -- name: CreatePresence :exec
 INSERT INTO
-  presence (number_card, meeting_id, date, present)
+  presence (number_card, meeting_id, date, is_presence)
 VALUES
   (?, ?, ?, ?);
 

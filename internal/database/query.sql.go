@@ -102,7 +102,7 @@ func (q *Queries) CreatePayment(ctx context.Context, arg CreatePaymentParams) er
 
 const createPresence = `-- name: CreatePresence :exec
 INSERT INTO
-  presence (number_card, meeting_id, date, present)
+  presence (number_card, meeting_id, date, is_presence)
 VALUES
   (?, ?, ?, ?)
 `
@@ -111,7 +111,7 @@ type CreatePresenceParams struct {
 	NumberCard int64
 	MeetingID  int64
 	Date       time.Time
-	Present    bool
+	IsPresence bool
 }
 
 func (q *Queries) CreatePresence(ctx context.Context, arg CreatePresenceParams) error {
@@ -119,7 +119,7 @@ func (q *Queries) CreatePresence(ctx context.Context, arg CreatePresenceParams) 
 		arg.NumberCard,
 		arg.MeetingID,
 		arg.Date,
-		arg.Present,
+		arg.IsPresence,
 	)
 	return err
 }
@@ -243,6 +243,38 @@ func (q *Queries) GetAssociatedByGroup(ctx context.Context, groupID int64) ([]As
 	return items, nil
 }
 
+const getAssociatedByNumberCard = `-- name: GetAssociatedByNumberCard :one
+SELECT
+  number_card, name, group_id
+FROM
+  associated
+WHERE
+  number_card = ?
+`
+
+func (q *Queries) GetAssociatedByNumberCard(ctx context.Context, numberCard int64) (Associated, error) {
+	row := q.db.QueryRowContext(ctx, getAssociatedByNumberCard, numberCard)
+	var i Associated
+	err := row.Scan(&i.NumberCard, &i.Name, &i.GroupID)
+	return i, err
+}
+
+const getGroupByID = `-- name: GetGroupByID :one
+SELECT
+  id, name
+FROM
+  groups
+WHERE
+  id = ?
+`
+
+func (q *Queries) GetGroupByID(ctx context.Context, id int64) (Group, error) {
+	row := q.db.QueryRowContext(ctx, getGroupByID, id)
+	var i Group
+	err := row.Scan(&i.ID, &i.Name)
+	return i, err
+}
+
 const getGroups = `-- name: GetGroups :many
 SELECT
   id, name
@@ -272,6 +304,27 @@ func (q *Queries) GetGroups(ctx context.Context) ([]Group, error) {
 		return nil, err
 	}
 	return items, nil
+}
+
+const getMeetingByID = `-- name: GetMeetingByID :one
+SELECT
+  id, group_id, address, date
+FROM
+  meeting
+WHERE
+  id = ?
+`
+
+func (q *Queries) GetMeetingByID(ctx context.Context, id int64) (Meeting, error) {
+	row := q.db.QueryRowContext(ctx, getMeetingByID, id)
+	var i Meeting
+	err := row.Scan(
+		&i.ID,
+		&i.GroupID,
+		&i.Address,
+		&i.Date,
+	)
+	return i, err
 }
 
 const getMeetings = `-- name: GetMeetings :many
@@ -419,6 +472,27 @@ func (q *Queries) GetPaymentByAssociated(ctx context.Context, numberCard int64) 
 	return items, nil
 }
 
+const getPaymentByID = `-- name: GetPaymentByID :one
+SELECT
+  id, number_card, ref_month, payment_date
+FROM
+  payment
+WHERE
+  id = ?
+`
+
+func (q *Queries) GetPaymentByID(ctx context.Context, id int64) (Payment, error) {
+	row := q.db.QueryRowContext(ctx, getPaymentByID, id)
+	var i Payment
+	err := row.Scan(
+		&i.ID,
+		&i.NumberCard,
+		&i.RefMonth,
+		&i.PaymentDate,
+	)
+	return i, err
+}
+
 const getPaymentByMonthYear = `-- name: GetPaymentByMonthYear :many
 SELECT
   id, number_card, ref_month, payment_date
@@ -464,7 +538,7 @@ func (q *Queries) GetPaymentByMonthYear(ctx context.Context, arg GetPaymentByMon
 
 const getPresence = `-- name: GetPresence :many
 SELECT
-  number_card, meeting_id, date, present
+  number_card, meeting_id, date, is_presence
 FROM
   presence
 `
@@ -483,7 +557,7 @@ func (q *Queries) GetPresence(ctx context.Context) ([]Presence, error) {
 			&i.NumberCard,
 			&i.MeetingID,
 			&i.Date,
-			&i.Present,
+			&i.IsPresence,
 		); err != nil {
 			return nil, err
 		}
@@ -500,7 +574,7 @@ func (q *Queries) GetPresence(ctx context.Context) ([]Presence, error) {
 
 const getPresenceByAssociated = `-- name: GetPresenceByAssociated :many
 SELECT
-  number_card, meeting_id, date, present
+  number_card, meeting_id, date, is_presence
 FROM
   presence
 WHERE
@@ -520,7 +594,7 @@ func (q *Queries) GetPresenceByAssociated(ctx context.Context, numberCard int64)
 			&i.NumberCard,
 			&i.MeetingID,
 			&i.Date,
-			&i.Present,
+			&i.IsPresence,
 		); err != nil {
 			return nil, err
 		}
@@ -535,9 +609,36 @@ func (q *Queries) GetPresenceByAssociated(ctx context.Context, numberCard int64)
 	return items, nil
 }
 
+const getPresenceByCompositeKey = `-- name: GetPresenceByCompositeKey :one
+SELECT
+  number_card, meeting_id, date, is_presence
+FROM
+  presence
+WHERE
+  number_card = ?
+  AND meeting_id = ?
+`
+
+type GetPresenceByCompositeKeyParams struct {
+	NumberCard int64
+	MeetingID  int64
+}
+
+func (q *Queries) GetPresenceByCompositeKey(ctx context.Context, arg GetPresenceByCompositeKeyParams) (Presence, error) {
+	row := q.db.QueryRowContext(ctx, getPresenceByCompositeKey, arg.NumberCard, arg.MeetingID)
+	var i Presence
+	err := row.Scan(
+		&i.NumberCard,
+		&i.MeetingID,
+		&i.Date,
+		&i.IsPresence,
+	)
+	return i, err
+}
+
 const getPresenceByMeeting = `-- name: GetPresenceByMeeting :many
 SELECT
-  number_card, meeting_id, date, present
+  number_card, meeting_id, date, is_presence
 FROM
   presence
 WHERE
@@ -557,7 +658,7 @@ func (q *Queries) GetPresenceByMeeting(ctx context.Context, meetingID int64) ([]
 			&i.NumberCard,
 			&i.MeetingID,
 			&i.Date,
-			&i.Present,
+			&i.IsPresence,
 		); err != nil {
 			return nil, err
 		}
