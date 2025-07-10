@@ -2,14 +2,16 @@ package service
 
 import (
 	"context"
+	"encoding/json"
 	"io"
+	"strconv"
+
 	"projeto-integrador-mdm/internal/database"
 	"projeto-integrador-mdm/internal/domain"
-	"strconv"
 )
 
 type AssociatedService interface {
-	Create(ctx context.Context, body io.ReadCloser) (*domain.Associated, error)
+	Create(ctx context.Context, body io.ReadCloser) (*database.CreateAssociatedParams, error)
 	List(ctx context.Context) ([]database.Associated, error)
 	Delete(ctx context.Context, numberCard string) (int64, error)
 }
@@ -26,17 +28,21 @@ func (s *associatedService) List(ctx context.Context) ([]database.Associated, er
 	return s.repo.GetAssociated(ctx)
 }
 
-func (s *associatedService) Create(ctx context.Context, body io.ReadCloser) (*domain.Associated, error) {
-	associatedParams, err := serialization[domain.Associated, database.CreateAssociatedParams](body)
-	if err != nil {
+func (s *associatedService) Create(ctx context.Context, body io.ReadCloser) (*database.CreateAssociatedParams, error) {
+	var dto domain.Associated
+	if err := json.NewDecoder(body).Decode(&dto); err != nil {
 		return nil, err
 	}
 
-	if err := s.repo.CreateAssociated(ctx, associatedParams); err != nil {
+	if err := IsValid(dto); err != nil {
 		return nil, err
 	}
 
-	return nil, nil
+	params := dto.ToCreateParams()
+	if err := s.repo.CreateAssociated(ctx, params); err != nil {
+		return nil, err
+	}
+	return &params, nil
 }
 
 func (s *associatedService) Delete(ctx context.Context, numberCard string) (int64, error) {
