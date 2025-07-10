@@ -1,9 +1,7 @@
 package service
 
 import (
-	"encoding/json"
 	"errors"
-	"io"
 	"reflect"
 	"strings"
 )
@@ -26,36 +24,4 @@ func IsValid(a any) error {
 	}
 
 	return nil
-}
-
-func serialization[T any, D any](body io.ReadCloser) (D, error) {
-	var dto T
-	var result D
-
-	if err := json.NewDecoder(body).Decode(&dto); err != nil {
-		return result, err
-	}
-
-	if err := IsValid(dto); err != nil {
-		return result, err
-	}
-
-	dstPtr := reflect.New(reflect.TypeOf((*D)(nil)).Elem())
-	dstVal := dstPtr.Elem()
-	srcVal := reflect.ValueOf(dto)
-
-	if srcVal.Kind() == reflect.Ptr {
-		srcVal = srcVal.Elem()
-	}
-
-	for i := range dstVal.NumField() {
-		field := dstVal.Type().Field(i).Name
-		srcField := srcVal.FieldByName(field)
-		if srcField.IsValid() && srcField.Type().AssignableTo(dstVal.Field(i).Type()) {
-			dstVal.Field(i).Set(srcField)
-		}
-	}
-
-	result = dstPtr.Interface().(D)
-	return result, nil
 }
