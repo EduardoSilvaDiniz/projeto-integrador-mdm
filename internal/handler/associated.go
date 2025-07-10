@@ -1,8 +1,10 @@
 package handler
 
 import (
-	"fmt"
+	"encoding/json"
+	"log"
 	"net/http"
+
 	"projeto-integrador-mdm/internal/service"
 )
 
@@ -16,47 +18,55 @@ func NewAssociatedHandler(service service.AssociatedService) *AssociatedHandler 
 	}
 }
 
-func (h *AssociatedHandler) List() http.HandlerFunc {
+func (h *AssociatedHandler) Create() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		associatedList, err := h.service.List(r.Context())
+		object, err := h.service.Create(r.Context(), r.Body)
 		if err != nil {
-			http.Error(w, "erro na execução GetAssociated: "+err.Error(), http.StatusBadRequest)
+			http.Error(w, "erro de execução Create: "+err.Error(), http.StatusBadRequest)
 			return
 		}
 
-		if len(associatedList) == 0 {
-			http.Error(w, "nenhum associado encontrado", http.StatusNotFound)
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
+		json.NewEncoder(w).Encode(object)
+	}
+}
+
+func (h *AssociatedHandler) List() http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		list, err := h.service.List(r.Context())
+		if err != nil {
+			http.Error(w, "erro de execução List: "+err.Error(), http.StatusBadRequest)
+			return
+		}
+
+		if len(list) == 0 {
+			http.Error(w, "nenhum registro encontrado", http.StatusNotFound)
 			return
 		}
 
 		w.WriteHeader(http.StatusOK)
-		for _, assoc := range associatedList {
-			fmt.Fprintf(w, "%+v\n", assoc)
+		w.Header().Set("Content-Type", "application/json")
+		for _, register := range list {
+			log.Println(register)
+			// json.NewEncoder(w).Encode(register)
 		}
-	}
-}
 
-func (h *AssociatedHandler) Create() http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
-		associatedObject, err := h.service.Create(r.Context(), r.Body)
-		if err != nil {
-			w.WriteHeader(http.StatusBadRequest)
-			fmt.Fprintln(w, err)
+		if err := json.NewEncoder(w).Encode(list); err != nil {
+			http.Error(w, "erro ao serializar JSON: "+err.Error(), http.StatusInternalServerError)
 			return
 		}
-
-		w.WriteHeader(http.StatusCreated)
-		fmt.Fprintln(w, associatedObject)
 	}
 }
 
 func (h *AssociatedHandler) Delete() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
+		// TODO Remover logica
 		ctx := r.Context()
 		cardNumber := r.PathValue("number_card")
 		rows, err := h.service.Delete(ctx, cardNumber)
 		if err != nil {
-			http.Error(w, "ocorreu um erro no service", http.StatusInternalServerError)
+			http.Error(w, "Error de execução Delete: "+err.Error(), http.StatusInternalServerError)
 			return
 		}
 
@@ -65,7 +75,8 @@ func (h *AssociatedHandler) Delete() http.HandlerFunc {
 			return
 		}
 
+		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
-		fmt.Fprintln(w, "Associado deletado com sucesso")
+		json.NewEncoder(w).Encode(cardNumber)
 	}
 }
