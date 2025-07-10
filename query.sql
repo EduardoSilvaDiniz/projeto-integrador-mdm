@@ -5,6 +5,14 @@ SELECT
 FROM
   associated;
 
+-- name: GetAssociatedByNumberCard :one
+SELECT
+  *
+FROM
+  associated
+WHERE
+  number_card = ?;
+
 -- name: CreateAssociated :exec
 INSERT INTO
   associated (number_card, name, group_id)
@@ -38,6 +46,14 @@ SELECT
 FROM
   groups;
 
+-- name: GetGroupByID :one
+SELECT
+  *
+FROM
+  groups
+WHERE
+  id = ?;
+
 -- name: CreateGroup :exec
 INSERT INTO
   groups (name)
@@ -69,6 +85,14 @@ SELECT
 FROM
   meeting;
 
+-- name: GetMeetingByID :one
+SELECT
+  *
+FROM
+  meeting
+WHERE
+  id = ?;
+
 -- name: UpdateMeeting :exec
 UPDATE meeting
 SET
@@ -97,6 +121,15 @@ SELECT
   *
 FROM
   presence;
+
+-- name: GetPresenceByCompositeKey :one
+SELECT
+  *
+FROM
+  present
+WHERE
+  number_card = ?
+  AND meeting_id = ?;
 
 -- name: GetPresenceByMeeting :many
 SELECT
@@ -132,6 +165,14 @@ SELECT
   *
 FROM
   payment;
+
+-- name: GetPaymentByID :one
+SELECT
+  *
+FROM
+  payment
+WHERE
+  id = ?;
 
 -- name: GetPaymentByAssociated :many
 SELECT
