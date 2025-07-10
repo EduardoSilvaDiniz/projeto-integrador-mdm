@@ -346,6 +346,79 @@ func (q *Queries) GetMeetingsByGroup(ctx context.Context, groupID int64) ([]Meet
 	return items, nil
 }
 
+const getPayment = `-- name: GetPayment :many
+SELECT
+  id, number_card, ref_month, payment_date
+FROM
+  payment
+`
+
+// PAYMENT
+func (q *Queries) GetPayment(ctx context.Context) ([]Payment, error) {
+	rows, err := q.db.QueryContext(ctx, getPayment)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []Payment
+	for rows.Next() {
+		var i Payment
+		if err := rows.Scan(
+			&i.ID,
+			&i.NumberCard,
+			&i.RefMonth,
+			&i.PaymentDate,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const getPaymentByAssociated = `-- name: GetPaymentByAssociated :many
+SELECT
+  id, number_card, ref_month, payment_date
+FROM
+  payment
+WHERE
+  number_card = ?
+`
+
+func (q *Queries) GetPaymentByAssociated(ctx context.Context, numberCard int64) ([]Payment, error) {
+	rows, err := q.db.QueryContext(ctx, getPaymentByAssociated, numberCard)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []Payment
+	for rows.Next() {
+		var i Payment
+		if err := rows.Scan(
+			&i.ID,
+			&i.NumberCard,
+			&i.RefMonth,
+			&i.PaymentDate,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const getPaymentByMonthYear = `-- name: GetPaymentByMonthYear :many
 SELECT
   id, number_card, ref_month, payment_date
@@ -363,79 +436,6 @@ type GetPaymentByMonthYearParams struct {
 
 func (q *Queries) GetPaymentByMonthYear(ctx context.Context, arg GetPaymentByMonthYearParams) ([]Payment, error) {
 	rows, err := q.db.QueryContext(ctx, getPaymentByMonthYear, arg.RefMonth, arg.RefMonth_2)
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
-	var items []Payment
-	for rows.Next() {
-		var i Payment
-		if err := rows.Scan(
-			&i.ID,
-			&i.NumberCard,
-			&i.RefMonth,
-			&i.PaymentDate,
-		); err != nil {
-			return nil, err
-		}
-		items = append(items, i)
-	}
-	if err := rows.Close(); err != nil {
-		return nil, err
-	}
-	if err := rows.Err(); err != nil {
-		return nil, err
-	}
-	return items, nil
-}
-
-const getPayments = `-- name: GetPayments :many
-SELECT
-  id, number_card, ref_month, payment_date
-FROM
-  payment
-`
-
-// PAYMENT
-func (q *Queries) GetPayments(ctx context.Context) ([]Payment, error) {
-	rows, err := q.db.QueryContext(ctx, getPayments)
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
-	var items []Payment
-	for rows.Next() {
-		var i Payment
-		if err := rows.Scan(
-			&i.ID,
-			&i.NumberCard,
-			&i.RefMonth,
-			&i.PaymentDate,
-		); err != nil {
-			return nil, err
-		}
-		items = append(items, i)
-	}
-	if err := rows.Close(); err != nil {
-		return nil, err
-	}
-	if err := rows.Err(); err != nil {
-		return nil, err
-	}
-	return items, nil
-}
-
-const getPaymentsByAssociated = `-- name: GetPaymentsByAssociated :many
-SELECT
-  id, number_card, ref_month, payment_date
-FROM
-  payment
-WHERE
-  number_card = ?
-`
-
-func (q *Queries) GetPaymentsByAssociated(ctx context.Context, numberCard int64) ([]Payment, error) {
-	rows, err := q.db.QueryContext(ctx, getPaymentsByAssociated, numberCard)
 	if err != nil {
 		return nil, err
 	}

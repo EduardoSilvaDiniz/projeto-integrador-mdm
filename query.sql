@@ -104,13 +104,13 @@ WHERE
   AND meeting_id = ?;
 
 -- PAYMENT
--- name: GetPayments :many
+-- name: GetPayment :many
 SELECT
   *
 FROM
   payment;
 
--- name: GetPaymentsByAssociated :many
+-- name: GetPaymentByAssociated :many
 SELECT
   *
 FROM
