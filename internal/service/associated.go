@@ -1,10 +1,10 @@
 package service
 
 import (
-	"chamada-pagamento-system/internal/database"
-	"chamada-pagamento-system/internal/domain"
 	"context"
 	"io"
+	"projeto-integrador-mdm/internal/database"
+	"projeto-integrador-mdm/internal/domain"
 	"strconv"
 )
 

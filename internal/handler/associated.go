@@ -1,9 +1,9 @@
 package handler
 
 import (
-	"chamada-pagamento-system/internal/service"
 	"fmt"
 	"net/http"
+	"projeto-integrador-mdm/internal/service"
 )
 
 type AssociatedHandler struct {
@@ -19,7 +19,6 @@ func NewAssociatedHandler(service service.AssociatedService) *AssociatedHandler 
 func (h *AssociatedHandler) List() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		associatedList, err := h.service.List(r.Context())
-
 		if err != nil {
 			http.Error(w, "erro na execução GetAssociated: "+err.Error(), http.StatusBadRequest)
 			return

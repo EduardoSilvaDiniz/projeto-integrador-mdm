@@ -1,9 +1,10 @@
-package handler
+package web
 
 import (
-	"chamada-pagamento-system/internal/database"
-	"chamada-pagamento-system/internal/service"
 	"net/http"
+	"projeto-integrador-mdm/internal/database"
+	"projeto-integrador-mdm/internal/handler"
+	"projeto-integrador-mdm/internal/service"
 )
 
 func PingPong(w http.ResponseWriter, _ *http.Request) {
@@ -14,11 +15,15 @@ func PingPong(w http.ResponseWriter, _ *http.Request) {
 
 func CreateRouter(mux *http.ServeMux, queries *database.Queries) {
 	associatedService := service.NewAssociatedService(queries)
-	associatedHandler := NewAssociatedHandler(associatedService)
+	associatedHandler := handler.NewAssociatedHandler(associatedService)
+	presenceService := service.NewPresenceService(queries)
+	presenceHandler := handler.NewPresenceHandler(presenceService)
 
 	mux.HandleFunc("GET /ping", PingPong)
 
 	mux.HandleFunc("GET /associated", associatedHandler.List())
 	mux.HandleFunc("POST /associated", associatedHandler.Create())
 	mux.HandleFunc("DELETE /associated/{number_card}", associatedHandler.Delete())
+
+	mux.HandleFunc("GET /presence", presenceHandler.Create())
 }

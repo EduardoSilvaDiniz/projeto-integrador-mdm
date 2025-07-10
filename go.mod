@@ -1,4 +1,4 @@
-module chamada-pagamento-system
+module projeto-integrador-mdm
 
 go 1.24.2
 

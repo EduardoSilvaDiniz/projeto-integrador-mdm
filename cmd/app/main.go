@@ -5,9 +5,8 @@ import (
 	"database/sql"
 	"log"
 	"net/http"
-
-	"chamada-pagamento-system/internal/database"
-	"chamada-pagamento-system/internal/handler"
+	"projeto-integrador-mdm/internal/database"
+	"projeto-integrador-mdm/internal/web"
 
 	_ "embed"
 
@@ -43,7 +42,7 @@ func main() {
 
 	log.Println("iniciando servidor http...")
 	mux := http.NewServeMux()
-	handler.CreateRouter(mux, queries)
+	web.CreateRouter(mux, queries)
 
 	log.Println("servidor inicializado em :8080")
 	if err := http.ListenAndServe(":8080", mux); err != nil {
