@@ -2,7 +2,6 @@ package handler
 
 import (
 	"encoding/json"
-	"log"
 	"net/http"
 
 	"projeto-integrador-mdm/internal/service"
@@ -28,7 +27,9 @@ func (h *AssociatedHandler) Create() http.HandlerFunc {
 
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
-		json.NewEncoder(w).Encode(object)
+		if err := json.NewEncoder(w).Encode(object); err != nil {
+			http.Error(w, "Erro de execução JSON encode: "+err.Error(), http.StatusInternalServerError)
+		}
 	}
 }
 
@@ -47,10 +48,6 @@ func (h *AssociatedHandler) List() http.HandlerFunc {
 
 		w.WriteHeader(http.StatusOK)
 		w.Header().Set("Content-Type", "application/json")
-		for _, register := range list {
-			log.Println(register)
-			// json.NewEncoder(w).Encode(register)
-		}
 
 		if err := json.NewEncoder(w).Encode(list); err != nil {
 			http.Error(w, "erro ao serializar JSON: "+err.Error(), http.StatusInternalServerError)
@@ -61,7 +58,6 @@ func (h *AssociatedHandler) List() http.HandlerFunc {
 
 func (h *AssociatedHandler) Delete() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		// TODO Remover logica
 		ctx := r.Context()
 		cardNumber := r.PathValue("number_card")
 		rows, err := h.service.Delete(ctx, cardNumber)
@@ -77,6 +73,8 @@ func (h *AssociatedHandler) Delete() http.HandlerFunc {
 
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
-		json.NewEncoder(w).Encode(cardNumber)
+		if err := json.NewEncoder(w).Encode(cardNumber); err != nil {
+			http.Error(w, "Erro de execução JSON encode: "+err.Error(), http.StatusInternalServerError)
+		}
 	}
 }

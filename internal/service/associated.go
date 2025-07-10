@@ -13,7 +13,7 @@ import (
 type AssociatedService interface {
 	Create(ctx context.Context, body io.ReadCloser) (*database.CreateAssociatedParams, error)
 	List(ctx context.Context) ([]database.Associated, error)
-	Delete(ctx context.Context, numberCard string) (int64, error)
+	Delete(ctx context.Context, id string) (int64, error)
 }
 
 type associatedService struct {
@@ -45,13 +45,13 @@ func (s *associatedService) Create(ctx context.Context, body io.ReadCloser) (*da
 	return &params, nil
 }
 
-func (s *associatedService) Delete(ctx context.Context, numberCard string) (int64, error) {
-	numberCardInt, err := strconv.ParseInt(numberCard, 10, 32)
+func (s *associatedService) Delete(ctx context.Context, id string) (int64, error) {
+	idInt, err := strconv.ParseInt(id, 10, 32)
 	if err != nil {
 		return -1, err
 	}
 
-	result, err := s.repo.DeleteAssociatedByNumberCard(ctx, numberCardInt)
+	result, err := s.repo.DeleteAssociatedByNumberCard(ctx, idInt)
 	if err != nil {
 		return -1, err
 	}
