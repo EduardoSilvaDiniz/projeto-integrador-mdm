@@ -12,8 +12,13 @@ import (
 )
 
 const checkPaymentExists = `-- name: CheckPaymentExists :one
-SELECT 1 FROM payment
-WHERE number_card = ? AND ref_month = ?
+SELECT
+  1
+FROM
+  payment
+WHERE
+  number_card = ?
+  AND ref_month = ?
 `
 
 type CheckPaymentExistsParams struct {
@@ -29,8 +34,10 @@ func (q *Queries) CheckPaymentExists(ctx context.Context, arg CheckPaymentExists
 }
 
 const createAssociated = `-- name: CreateAssociated :exec
-INSERT INTO associated (number_card, name, group_id)
-VALUES (?, ?, ?)
+INSERT INTO
+  associated (number_card, name, group_id)
+VALUES
+  (?, ?, ?)
 `
 
 type CreateAssociatedParams struct {
@@ -45,8 +52,10 @@ func (q *Queries) CreateAssociated(ctx context.Context, arg CreateAssociatedPara
 }
 
 const createGroup = `-- name: CreateGroup :exec
-INSERT INTO groups (name)
-VALUES (?)
+INSERT INTO
+  groups (name)
+VALUES
+  (?)
 `
 
 func (q *Queries) CreateGroup(ctx context.Context, name string) error {
@@ -55,9 +64,10 @@ func (q *Queries) CreateGroup(ctx context.Context, name string) error {
 }
 
 const createMeeting = `-- name: CreateMeeting :exec
-
-INSERT INTO meeting (group_id, address, date)
-VALUES (?, ?, ?)
+INSERT INTO
+  meeting (group_id, address, date)
+VALUES
+  (?, ?, ?)
 `
 
 type CreateMeetingParams struct {
@@ -73,8 +83,10 @@ func (q *Queries) CreateMeeting(ctx context.Context, arg CreateMeetingParams) er
 }
 
 const createPayment = `-- name: CreatePayment :exec
-INSERT INTO payment (number_card, ref_month, payment_date)
-VALUES (?, ?, ?)
+INSERT INTO
+  payment (number_card, ref_month, payment_date)
+VALUES
+  (?, ?, ?)
 `
 
 type CreatePaymentParams struct {
@@ -89,8 +101,10 @@ func (q *Queries) CreatePayment(ctx context.Context, arg CreatePaymentParams) er
 }
 
 const createPresence = `-- name: CreatePresence :exec
-INSERT INTO presence (number_card, meeting_id, date, present)
-VALUES (?, ?, ?, ?)
+INSERT INTO
+  presence (number_card, meeting_id, date, present)
+VALUES
+  (?, ?, ?, ?)
 `
 
 type CreatePresenceParams struct {
@@ -112,7 +126,8 @@ func (q *Queries) CreatePresence(ctx context.Context, arg CreatePresenceParams) 
 
 const deleteAssociatedByNumberCard = `-- name: DeleteAssociatedByNumberCard :execresult
 DELETE FROM associated
-WHERE number_card = ?
+WHERE
+  number_card = ?
 `
 
 func (q *Queries) DeleteAssociatedByNumberCard(ctx context.Context, numberCard int64) (sql.Result, error) {
@@ -121,7 +136,8 @@ func (q *Queries) DeleteAssociatedByNumberCard(ctx context.Context, numberCard i
 
 const deleteGroupById = `-- name: DeleteGroupById :execresult
 DELETE FROM groups
-WHERE id = ?
+WHERE
+  id = ?
 `
 
 func (q *Queries) DeleteGroupById(ctx context.Context, id int64) (sql.Result, error) {
@@ -130,7 +146,8 @@ func (q *Queries) DeleteGroupById(ctx context.Context, id int64) (sql.Result, er
 
 const deleteMeetingById = `-- name: DeleteMeetingById :execresult
 DELETE FROM meeting
-WHERE id = ?
+WHERE
+  id = ?
 `
 
 func (q *Queries) DeleteMeetingById(ctx context.Context, id int64) (sql.Result, error) {
@@ -139,16 +156,19 @@ func (q *Queries) DeleteMeetingById(ctx context.Context, id int64) (sql.Result, 
 
 const deletePaymentById = `-- name: DeletePaymentById :execresult
 DELETE FROM payment
-WHERE id = ?
+WHERE
+  id = ?
 `
 
 func (q *Queries) DeletePaymentById(ctx context.Context, id interface{}) (sql.Result, error) {
 	return q.db.ExecContext(ctx, deletePaymentById, id)
 }
 
-const deletePresenceByCompositeKey = `-- name: DeletePresenceByCompositeKey :exec
+const deletePresenceByCompositeKey = `-- name: DeletePresenceByCompositeKey :execresult
 DELETE FROM presence
-WHERE number_card = ? AND meeting_id = ?
+WHERE
+  number_card = ?
+  AND meeting_id = ?
 `
 
 type DeletePresenceByCompositeKeyParams struct {
@@ -156,14 +176,15 @@ type DeletePresenceByCompositeKeyParams struct {
 	MeetingID  int64
 }
 
-func (q *Queries) DeletePresenceByCompositeKey(ctx context.Context, arg DeletePresenceByCompositeKeyParams) error {
-	_, err := q.db.ExecContext(ctx, deletePresenceByCompositeKey, arg.NumberCard, arg.MeetingID)
-	return err
+func (q *Queries) DeletePresenceByCompositeKey(ctx context.Context, arg DeletePresenceByCompositeKeyParams) (sql.Result, error) {
+	return q.db.ExecContext(ctx, deletePresenceByCompositeKey, arg.NumberCard, arg.MeetingID)
 }
 
 const getAssociated = `-- name: GetAssociated :many
-
-SELECT number_card, name, group_id FROM associated
+SELECT
+  number_card, name, group_id
+FROM
+  associated
 `
 
 // ASSOCIATED
@@ -191,8 +212,12 @@ func (q *Queries) GetAssociated(ctx context.Context) ([]Associated, error) {
 }
 
 const getAssociatedByGroup = `-- name: GetAssociatedByGroup :many
-SELECT number_card, name, group_id FROM associated
-WHERE group_id = ?
+SELECT
+  number_card, name, group_id
+FROM
+  associated
+WHERE
+  group_id = ?
 `
 
 func (q *Queries) GetAssociatedByGroup(ctx context.Context, groupID int64) ([]Associated, error) {
@@ -219,8 +244,10 @@ func (q *Queries) GetAssociatedByGroup(ctx context.Context, groupID int64) ([]As
 }
 
 const getGroups = `-- name: GetGroups :many
-
-SELECT id, name FROM groups
+SELECT
+  id, name
+FROM
+  groups
 `
 
 // GROUPS
@@ -248,7 +275,10 @@ func (q *Queries) GetGroups(ctx context.Context) ([]Group, error) {
 }
 
 const getMeetings = `-- name: GetMeetings :many
-SELECT id, group_id, address, date FROM meeting
+SELECT
+  id, group_id, address, date
+FROM
+  meeting
 `
 
 func (q *Queries) GetMeetings(ctx context.Context) ([]Meeting, error) {
@@ -280,8 +310,12 @@ func (q *Queries) GetMeetings(ctx context.Context) ([]Meeting, error) {
 }
 
 const getMeetingsByGroup = `-- name: GetMeetingsByGroup :many
-SELECT id, group_id, address, date FROM meeting
-WHERE group_id = ?
+SELECT
+  id, group_id, address, date
+FROM
+  meeting
+WHERE
+  group_id = ?
 `
 
 func (q *Queries) GetMeetingsByGroup(ctx context.Context, groupID int64) ([]Meeting, error) {
@@ -313,8 +347,13 @@ func (q *Queries) GetMeetingsByGroup(ctx context.Context, groupID int64) ([]Meet
 }
 
 const getPaymentByMonthYear = `-- name: GetPaymentByMonthYear :many
-SELECT id, number_card, ref_month, payment_date FROM payment
-WHERE strftime('%m', ref_month) = ? AND strftime('%Y', ref_month) = ?
+SELECT
+  id, number_card, ref_month, payment_date
+FROM
+  payment
+WHERE
+  strftime ('%m', ref_month) = ?
+  AND strftime ('%Y', ref_month) = ?
 `
 
 type GetPaymentByMonthYearParams struct {
@@ -351,8 +390,10 @@ func (q *Queries) GetPaymentByMonthYear(ctx context.Context, arg GetPaymentByMon
 }
 
 const getPayments = `-- name: GetPayments :many
-
-SELECT id, number_card, ref_month, payment_date FROM payment
+SELECT
+  id, number_card, ref_month, payment_date
+FROM
+  payment
 `
 
 // PAYMENT
@@ -385,8 +426,12 @@ func (q *Queries) GetPayments(ctx context.Context) ([]Payment, error) {
 }
 
 const getPaymentsByAssociated = `-- name: GetPaymentsByAssociated :many
-SELECT id, number_card, ref_month, payment_date FROM payment
-WHERE number_card = ?
+SELECT
+  id, number_card, ref_month, payment_date
+FROM
+  payment
+WHERE
+  number_card = ?
 `
 
 func (q *Queries) GetPaymentsByAssociated(ctx context.Context, numberCard int64) ([]Payment, error) {
@@ -418,8 +463,10 @@ func (q *Queries) GetPaymentsByAssociated(ctx context.Context, numberCard int64)
 }
 
 const getPresence = `-- name: GetPresence :many
-
-SELECT number_card, meeting_id, date, present FROM presence
+SELECT
+  number_card, meeting_id, date, present
+FROM
+  presence
 `
 
 // PRESENCE
@@ -452,8 +499,12 @@ func (q *Queries) GetPresence(ctx context.Context) ([]Presence, error) {
 }
 
 const getPresenceByAssociated = `-- name: GetPresenceByAssociated :many
-SELECT number_card, meeting_id, date, present FROM presence
-WHERE number_card = ?
+SELECT
+  number_card, meeting_id, date, present
+FROM
+  presence
+WHERE
+  number_card = ?
 `
 
 func (q *Queries) GetPresenceByAssociated(ctx context.Context, numberCard int64) ([]Presence, error) {
@@ -485,8 +536,12 @@ func (q *Queries) GetPresenceByAssociated(ctx context.Context, numberCard int64)
 }
 
 const getPresenceByMeeting = `-- name: GetPresenceByMeeting :many
-SELECT number_card, meeting_id, date, present FROM presence
-WHERE meeting_id = ?
+SELECT
+  number_card, meeting_id, date, present
+FROM
+  presence
+WHERE
+  meeting_id = ?
 `
 
 func (q *Queries) GetPresenceByMeeting(ctx context.Context, meetingID int64) ([]Presence, error) {

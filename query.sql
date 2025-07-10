@@ -97,7 +97,7 @@ INSERT INTO
 VALUES
   (?, ?, ?, ?);
 
--- name: DeletePresenceByCompositeKey :exec
+-- name: DeletePresenceByCompositeKey :execresult
 DELETE FROM presence
 WHERE
   number_card = ?

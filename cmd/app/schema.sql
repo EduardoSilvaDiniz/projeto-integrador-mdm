@@ -20,7 +20,7 @@ CREATE TABLE meeting (
   group_id INTEGER NOT NULL,
   address TEXT NOT NULL,
   date DATE NOT NULL,
-  FOREIGN KEY (group_id) REFERENCES group (id) ON DELETE CASCADE
+  FOREIGN KEY (group_id) REFERENCES groups (id) ON DELETE CASCADE
 );
 
 CREATE TABLE groups (id INTEGER PRIMARY KEY, name TEXT NOT NULL);
