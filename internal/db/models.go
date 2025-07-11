@@ -2,7 +2,7 @@
 // versions:
 //   sqlc v1.29.0
 
-package database
+package db
 
 import (
 	"time"
@@ -36,6 +36,5 @@ type Payment struct {
 type Presence struct {
 	NumberCard int64
 	MeetingID  int64
-	Date       time.Time
 	IsPresence bool
 }

@@ -3,7 +3,7 @@
 //   sqlc v1.29.0
 // source: query.sql
 
-package database
+package db
 
 import (
 	"context"
@@ -102,25 +102,19 @@ func (q *Queries) CreatePayment(ctx context.Context, arg CreatePaymentParams) er
 
 const createPresence = `-- name: CreatePresence :exec
 INSERT INTO
-  presence (number_card, meeting_id, date, is_presence)
+  presence (number_card, meeting_id, is_presence)
 VALUES
-  (?, ?, ?, ?)
+  (?, ?, ?)
 `
 
 type CreatePresenceParams struct {
 	NumberCard int64
 	MeetingID  int64
-	Date       time.Time
 	IsPresence bool
 }
 
 func (q *Queries) CreatePresence(ctx context.Context, arg CreatePresenceParams) error {
-	_, err := q.db.ExecContext(ctx, createPresence,
-		arg.NumberCard,
-		arg.MeetingID,
-		arg.Date,
-		arg.IsPresence,
-	)
+	_, err := q.db.ExecContext(ctx, createPresence, arg.NumberCard, arg.MeetingID, arg.IsPresence)
 	return err
 }
 
@@ -538,7 +532,7 @@ func (q *Queries) GetPaymentByMonthYear(ctx context.Context, arg GetPaymentByMon
 
 const getPresence = `-- name: GetPresence :many
 SELECT
-  number_card, meeting_id, date, is_presence
+  number_card, meeting_id, is_presence
 FROM
   presence
 `
@@ -553,12 +547,7 @@ func (q *Queries) GetPresence(ctx context.Context) ([]Presence, error) {
 	var items []Presence
 	for rows.Next() {
 		var i Presence
-		if err := rows.Scan(
-			&i.NumberCard,
-			&i.MeetingID,
-			&i.Date,
-			&i.IsPresence,
-		); err != nil {
+		if err := rows.Scan(&i.NumberCard, &i.MeetingID, &i.IsPresence); err != nil {
 			return nil, err
 		}
 		items = append(items, i)
@@ -574,7 +563,7 @@ func (q *Queries) GetPresence(ctx context.Context) ([]Presence, error) {
 
 const getPresenceByAssociated = `-- name: GetPresenceByAssociated :many
 SELECT
-  number_card, meeting_id, date, is_presence
+  number_card, meeting_id, is_presence
 FROM
   presence
 WHERE
@@ -590,12 +579,7 @@ func (q *Queries) GetPresenceByAssociated(ctx context.Context, numberCard int64)
 	var items []Presence
 	for rows.Next() {
 		var i Presence
-		if err := rows.Scan(
-			&i.NumberCard,
-			&i.MeetingID,
-			&i.Date,
-			&i.IsPresence,
-		); err != nil {
+		if err := rows.Scan(&i.NumberCard, &i.MeetingID, &i.IsPresence); err != nil {
 			return nil, err
 		}
 		items = append(items, i)
@@ -611,7 +595,7 @@ func (q *Queries) GetPresenceByAssociated(ctx context.Context, numberCard int64)
 
 const getPresenceByCompositeKey = `-- name: GetPresenceByCompositeKey :one
 SELECT
-  number_card, meeting_id, date, is_presence
+  number_card, meeting_id, is_presence
 FROM
   presence
 WHERE
@@ -627,18 +611,13 @@ type GetPresenceByCompositeKeyParams struct {
 func (q *Queries) GetPresenceByCompositeKey(ctx context.Context, arg GetPresenceByCompositeKeyParams) (Presence, error) {
 	row := q.db.QueryRowContext(ctx, getPresenceByCompositeKey, arg.NumberCard, arg.MeetingID)
 	var i Presence
-	err := row.Scan(
-		&i.NumberCard,
-		&i.MeetingID,
-		&i.Date,
-		&i.IsPresence,
-	)
+	err := row.Scan(&i.NumberCard, &i.MeetingID, &i.IsPresence)
 	return i, err
 }
 
 const getPresenceByMeeting = `-- name: GetPresenceByMeeting :many
 SELECT
-  number_card, meeting_id, date, is_presence
+  number_card, meeting_id, is_presence
 FROM
   presence
 WHERE
@@ -654,12 +633,7 @@ func (q *Queries) GetPresenceByMeeting(ctx context.Context, meetingID int64) ([]
 	var items []Presence
 	for rows.Next() {
 		var i Presence
-		if err := rows.Scan(
-			&i.NumberCard,
-			&i.MeetingID,
-			&i.Date,
-			&i.IsPresence,
-		); err != nil {
+		if err := rows.Scan(&i.NumberCard, &i.MeetingID, &i.IsPresence); err != nil {
 			return nil, err
 		}
 		items = append(items, i)
@@ -673,25 +647,26 @@ func (q *Queries) GetPresenceByMeeting(ctx context.Context, meetingID int64) ([]
 	return items, nil
 }
 
-const updateAssociated = `-- name: UpdateAssociated :exec
+const updateAssociated = `-- name: UpdateAssociated :execresult
 UPDATE associated
 SET
-  name = ?
+  name = ?,
+	group_id = ?
 WHERE
   number_card = ?
 `
 
 type UpdateAssociatedParams struct {
 	Name       string
+	GroupID    int64
 	NumberCard int64
 }
 
-func (q *Queries) UpdateAssociated(ctx context.Context, arg UpdateAssociatedParams) error {
-	_, err := q.db.ExecContext(ctx, updateAssociated, arg.Name, arg.NumberCard)
-	return err
+func (q *Queries) UpdateAssociated(ctx context.Context, arg UpdateAssociatedParams) (sql.Result, error) {
+	return q.db.ExecContext(ctx, updateAssociated, arg.Name, arg.GroupID, arg.NumberCard)
 }
 
-const updateGroup = `-- name: UpdateGroup :exec
+const updateGroup = `-- name: UpdateGroup :execresult
 UPDATE groups
 SET
   name = ?
@@ -704,12 +679,11 @@ type UpdateGroupParams struct {
 	ID   int64
 }
 
-func (q *Queries) UpdateGroup(ctx context.Context, arg UpdateGroupParams) error {
-	_, err := q.db.ExecContext(ctx, updateGroup, arg.Name, arg.ID)
-	return err
+func (q *Queries) UpdateGroup(ctx context.Context, arg UpdateGroupParams) (sql.Result, error) {
+	return q.db.ExecContext(ctx, updateGroup, arg.Name, arg.ID)
 }
 
-const updateMeeting = `-- name: UpdateMeeting :exec
+const updateMeeting = `-- name: UpdateMeeting :execresult
 UPDATE meeting
 SET
   group_id = ?,
@@ -726,17 +700,16 @@ type UpdateMeetingParams struct {
 	ID      int64
 }
 
-func (q *Queries) UpdateMeeting(ctx context.Context, arg UpdateMeetingParams) error {
-	_, err := q.db.ExecContext(ctx, updateMeeting,
+func (q *Queries) UpdateMeeting(ctx context.Context, arg UpdateMeetingParams) (sql.Result, error) {
+	return q.db.ExecContext(ctx, updateMeeting,
 		arg.GroupID,
 		arg.Address,
 		arg.Date,
 		arg.ID,
 	)
-	return err
 }
 
-const updatePayment = `-- name: UpdatePayment :exec
+const updatePayment = `-- name: UpdatePayment :execresult
 UPDATE payment
 SET
   ref_month = ?,
@@ -751,7 +724,25 @@ type UpdatePaymentParams struct {
 	ID          int64
 }
 
-func (q *Queries) UpdatePayment(ctx context.Context, arg UpdatePaymentParams) error {
-	_, err := q.db.ExecContext(ctx, updatePayment, arg.RefMonth, arg.PaymentDate, arg.ID)
-	return err
+func (q *Queries) UpdatePayment(ctx context.Context, arg UpdatePaymentParams) (sql.Result, error) {
+	return q.db.ExecContext(ctx, updatePayment, arg.RefMonth, arg.PaymentDate, arg.ID)
+}
+
+const updatePresence = `-- name: UpdatePresence :execresult
+UPDATE presence
+SET
+	is_presence = ?
+WHERE
+  number_card = ?
+	AND meeting_id = ?
+`
+
+type UpdatePresenceParams struct {
+	IsPresence bool
+	NumberCard int64
+	MeetingID  int64
+}
+
+func (q *Queries) UpdatePresence(ctx context.Context, arg UpdatePresenceParams) (sql.Result, error) {
+	return q.db.ExecContext(ctx, updatePresence, arg.IsPresence, arg.NumberCard, arg.MeetingID)
 }

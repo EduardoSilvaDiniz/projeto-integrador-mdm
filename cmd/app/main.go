@@ -3,12 +3,11 @@ package main
 import (
 	"context"
 	"database/sql"
+	_ "embed"
 	"log"
 	"net/http"
-	"projeto-integrador-mdm/internal/database"
+	"projeto-integrador-mdm/internal/db"
 	"projeto-integrador-mdm/internal/web"
-
-	_ "embed"
 
 	_ "modernc.org/sqlite"
 )
@@ -16,18 +15,18 @@ import (
 //go:embed schema.sql
 var ddl string
 
-func run() (*database.Queries, error) {
+func run() (*db.Queries, error) {
 	ctx := context.Background()
-	db, err := sql.Open("sqlite", ":memory:")
+	sqlite, err := sql.Open("sqlite", ":memory:")
 	if err != nil {
 		return nil, err
 	}
 
-	if _, err := db.ExecContext(ctx, ddl); err != nil {
+	if _, err := sqlite.ExecContext(ctx, ddl); err != nil {
 		return nil, err
 	}
 
-	queries := database.New(db)
+	queries := db.New(sqlite)
 
 	return queries, nil
 }
