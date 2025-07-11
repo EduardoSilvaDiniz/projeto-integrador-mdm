@@ -5,15 +5,22 @@ import (
 	"database/sql"
 	_ "embed"
 	"log"
+	"log/slog"
 	"net/http"
+	"os"
 	"projeto-integrador-mdm/internal/db"
 	"projeto-integrador-mdm/internal/web"
 
 	_ "modernc.org/sqlite"
 )
 
-//go:embed schema.sql
-var ddl string
+var (
+	//go:embed schema.sql
+	ddl    string
+	logger = slog.New(slog.NewTextHandler(os.Stdout, &slog.HandlerOptions{
+		Level: slog.LevelInfo, // ou slog.LevelDebug
+	}))
+)
 
 func run() (*db.Queries, error) {
 	ctx := context.Background()
@@ -32,21 +39,22 @@ func run() (*db.Queries, error) {
 }
 
 func main() {
-	log.Println("iniciando conexão com banco...")
+	slog.SetDefault(logger)
+	slog.Info("Iniciado conexão com banco de dados sqlite")
 	queries, err := run()
 	if err != nil {
-		log.Panic(err)
+		slog.Error("falha na conexão com banco de dados", "err", err)
 		return
 	}
-	log.Println("done")
+	slog.Info("feito")
 
-	log.Println("iniciando servidor http...")
+	slog.Info("Iniciando Servidor HTTP")
 	mux := http.NewServeMux()
 	web.CreateRouter(mux, queries)
 
-	log.Println("servidor inicializado em :8080")
 	if err := http.ListenAndServe(":8080", mux); err != nil {
-		log.Fatal("Erro ao iniciar servidor:", err)
+		slog.Error("Erro ao iniciar servidor:")
 		return
 	}
+	slog.Info("servidor inicializado em :8080")
 }

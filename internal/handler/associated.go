@@ -2,6 +2,7 @@ package handler
 
 import (
 	"encoding/json"
+	"log/slog"
 	"net/http"
 
 	"projeto-integrador-mdm/internal/service"
@@ -19,16 +20,22 @@ func NewAssociatedHandler(service service.AssociatedService) *AssociatedHandler 
 
 func (h *AssociatedHandler) Create() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		object, err := h.service.Create(r.Context(), r.Body)
+		ctx := r.Context()
+		slog.Info("Recebida requisição para criar registro de associado", "path", r.URL.Path)
+
+		object, err := h.service.Create(ctx, r.Body)
 		if err != nil {
-			http.Error(w, "erro de execução Create: "+err.Error(), http.StatusBadRequest)
+			slog.Error("Erro ao criar registro de associados", "err", err)
+			http.Error(w, "erro ao tentar criar registro de associado", http.StatusInternalServerError)
 			return
 		}
+		slog.Info("Registro de associado criando")
 
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
 		if err := json.NewEncoder(w).Encode(object); err != nil {
-			http.Error(w, "Erro de execução JSON encode: "+err.Error(), http.StatusInternalServerError)
+			slog.Error("erro ao tentar enviar JSON", "err", err)
+			http.Error(w, "erro ao tentar enviar JSON", http.StatusInternalServerError)
 		}
 	}
 }
@@ -36,43 +43,74 @@ func (h *AssociatedHandler) Create() http.HandlerFunc {
 func (h *AssociatedHandler) GetById() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		id := r.PathValue("number_card")
-		object, err := h.service.GetById(r.Context(), id)
+		ctx := r.Context()
+
+		slog.Info("Recebida requisição para buscar registro de associado pelo seu numero de carterinha", "path", r.URL.Path)
+
+		object, err := h.service.GetById(ctx, id)
 		if err != nil {
-			http.Error(w, "erro de execução Update: "+err.Error(), http.StatusBadRequest)
+			slog.Error("erro ao tentar busca registro de associado", "err", err)
+			http.Error(w, "erro ao tentar busca registro de associado", http.StatusInternalServerError)
 			return
 		}
+		if object == nil {
+			slog.Error("não foi encontrando registro com o numero de carterinha informado", "err", err)
+			http.Error(w, "não foi encontrando registro com numero de carterinha informado", http.StatusBadRequest)
+		}
+
+		slog.Info("registro de associado encontrando", "id", object.NumberCard)
 
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
 		if err := json.NewEncoder(w).Encode(object); err != nil {
-			http.Error(w, "Erro de execução JSON encode: "+err.Error(), http.StatusInternalServerError)
+			slog.Error("erro ao tentar enviar JSON", "err", err)
+			http.Error(w, "erro ao tentar enviar JSON", http.StatusInternalServerError)
 		}
 	}
 }
 
 func (h *AssociatedHandler) Update() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		object, err := h.service.Update(r.Context(), r.Body)
+		ctx := r.Context()
+		body := r.Body
+
+		slog.Info("Recebida requisição para atualizar registro de associado", "path", r.URL.Path)
+
+		object, err := h.service.Update(ctx, body)
 		if err != nil {
-			http.Error(w, "erro de execução Update: "+err.Error(), http.StatusBadRequest)
+			http.Error(w, "erro ao tentar atualizar registro de associado", http.StatusInternalServerError)
 			return
 		}
+
+		if object == nil {
+			slog.Error("não foi encontrando registro com o numero de carterinha informado", "err", err)
+			http.Error(w, "não foi encontrando registro com numero de carterinha informado", http.StatusBadRequest)
+		}
+
+		slog.Info("registro de associado atualizado", "id", object.NumberCard)
 
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
 		if err := json.NewEncoder(w).Encode(object); err != nil {
-			http.Error(w, "Erro de execução JSON encode: "+err.Error(), http.StatusInternalServerError)
+			slog.Error("erro ao tentar enviar JSON", "err", err)
+			http.Error(w, "erro ao tentar enviar JSON", http.StatusInternalServerError)
 		}
 	}
 }
 
 func (h *AssociatedHandler) List() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		list, err := h.service.List(r.Context())
+		ctx := r.Context()
+		slog.Info("Recebida requisição para listar associateds", "path", r.URL.Path)
+
+		list, err := h.service.List(ctx)
 		if err != nil {
-			http.Error(w, "erro de execução List: "+err.Error(), http.StatusBadRequest)
+			slog.Error("Erro ao buscar lista de associados", "err", err)
+			http.Error(w, "erro ao buscar associados", http.StatusInternalServerError)
 			return
 		}
+
+		slog.Info("Lista de associados obtida com sucesso", "quantidade", len(list))
 
 		if len(list) == 0 {
 			http.Error(w, "nenhum registro encontrado", http.StatusNotFound)
@@ -83,7 +121,8 @@ func (h *AssociatedHandler) List() http.HandlerFunc {
 		w.Header().Set("Content-Type", "application/json")
 
 		if err := json.NewEncoder(w).Encode(list); err != nil {
-			http.Error(w, "erro ao serializar JSON: "+err.Error(), http.StatusInternalServerError)
+			slog.Error("erro ao tentar enviar JSON", "err", err)
+			http.Error(w, "erro ao tentar enviar JSON", http.StatusInternalServerError)
 			return
 		}
 	}
@@ -93,21 +132,29 @@ func (h *AssociatedHandler) Delete() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		ctx := r.Context()
 		id := r.PathValue("number_card")
+
 		rows, err := h.service.Delete(ctx, id)
 		if err != nil {
-			http.Error(w, "Error de execução Delete: "+err.Error(), http.StatusInternalServerError)
+			slog.Error("erro ao tentar apagar registro", "err", err)
+			http.Error(w, "erro ao tentar apagar registro", http.StatusInternalServerError)
 			return
 		}
 
 		if rows == 0 {
-			http.Error(w, "Registro não encontrado", http.StatusInternalServerError)
+			slog.Error("não foi encontrando registros")
+			http.Error(w, "Registro não encontrado", http.StatusBadRequest)
 			return
 		}
 
+		slog.Info("Registro apagado", "id", id)
+
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
+
 		if err := json.NewEncoder(w).Encode(id); err != nil {
-			http.Error(w, "Erro de execução JSON encode: "+err.Error(), http.StatusInternalServerError)
+			slog.Error("erro ao tentar enviar JSON", "err", err)
+			http.Error(w, "erro ao tentar enviar JSON", http.StatusInternalServerError)
+			return
 		}
 	}
 }
