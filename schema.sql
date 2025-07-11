@@ -8,7 +8,6 @@ CREATE TABLE associated (
 CREATE TABLE presence (
   number_card INTEGER NOT NULL,
   meeting_id INTEGER NOT NULL,
-  date DATE NOT NULL DEFAULT CURRENT_DATE,
   is_presence BOOLEAN NOT NULL,
   PRIMARY KEY (number_card, meeting_id),
   FOREIGN KEY (number_card) REFERENCES associated (number_card) ON DELETE CASCADE,
