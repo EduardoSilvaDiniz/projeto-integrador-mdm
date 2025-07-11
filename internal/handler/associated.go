@@ -33,6 +33,39 @@ func (h *AssociatedHandler) Create() http.HandlerFunc {
 	}
 }
 
+func (h *AssociatedHandler) GetById() http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		id := r.PathValue("number_card")
+		object, err := h.service.GetById(r.Context(), id)
+		if err != nil {
+			http.Error(w, "erro de execução Update: "+err.Error(), http.StatusBadRequest)
+			return
+		}
+
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
+		if err := json.NewEncoder(w).Encode(object); err != nil {
+			http.Error(w, "Erro de execução JSON encode: "+err.Error(), http.StatusInternalServerError)
+		}
+	}
+}
+
+func (h *AssociatedHandler) Update() http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		object, err := h.service.Update(r.Context(), r.Body)
+		if err != nil {
+			http.Error(w, "erro de execução Update: "+err.Error(), http.StatusBadRequest)
+			return
+		}
+
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
+		if err := json.NewEncoder(w).Encode(object); err != nil {
+			http.Error(w, "Erro de execução JSON encode: "+err.Error(), http.StatusInternalServerError)
+		}
+	}
+}
+
 func (h *AssociatedHandler) List() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		list, err := h.service.List(r.Context())
@@ -59,8 +92,8 @@ func (h *AssociatedHandler) List() http.HandlerFunc {
 func (h *AssociatedHandler) Delete() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		ctx := r.Context()
-		cardNumber := r.PathValue("number_card")
-		rows, err := h.service.Delete(ctx, cardNumber)
+		id := r.PathValue("number_card")
+		rows, err := h.service.Delete(ctx, id)
 		if err != nil {
 			http.Error(w, "Error de execução Delete: "+err.Error(), http.StatusInternalServerError)
 			return
@@ -73,7 +106,7 @@ func (h *AssociatedHandler) Delete() http.HandlerFunc {
 
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
-		if err := json.NewEncoder(w).Encode(cardNumber); err != nil {
+		if err := json.NewEncoder(w).Encode(id); err != nil {
 			http.Error(w, "Erro de execução JSON encode: "+err.Error(), http.StatusInternalServerError)
 		}
 	}
