@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"errors"
 	"io"
+	"log"
 	"strconv"
 
 	"projeto-integrador-mdm/internal/db"
@@ -63,9 +64,17 @@ func (s *associatedService) GetById(ctx context.Context, id string) (*db.Associa
 }
 
 func (s *associatedService) Update(ctx context.Context, body io.ReadCloser) (*db.UpdateAssociatedParams, error) {
+	data, err := io.ReadAll(body)
+	if err != nil {
+		log.Println("erro ao ler body:", err)
+		return nil, err
+	}
+	log.Println("corpo recebido:", string(data))
+
 	var dto domain.Associated
 
-	if err := json.NewDecoder(body).Decode(&dto); err != nil {
+	if err := json.Unmarshal(data, &dto); err != nil {
+		log.Println("erro de decodificação Json")
 		return nil, err
 	}
 
@@ -73,11 +82,13 @@ func (s *associatedService) Update(ctx context.Context, body io.ReadCloser) (*db
 
 	result, err := s.repo.UpdateAssociated(ctx, params)
 	if err != nil {
+		log.Println("erro de execução SQL")
 		return nil, err
 	}
 
 	rows, err := result.RowsAffected()
 	if err != nil {
+		log.Println("erro de execução RowsAffected")
 		return nil, err
 	}
 

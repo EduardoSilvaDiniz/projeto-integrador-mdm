@@ -2,7 +2,7 @@ package web
 
 import (
 	"net/http"
-	"projeto-integrador-mdm/internal/database"
+	"projeto-integrador-mdm/internal/db"
 	"projeto-integrador-mdm/internal/handler"
 	"projeto-integrador-mdm/internal/service"
 )
@@ -13,7 +13,7 @@ func PingPong(w http.ResponseWriter, _ *http.Request) {
 	}
 }
 
-func CreateRouter(mux *http.ServeMux, queries *database.Queries) {
+func CreateRouter(mux *http.ServeMux, queries *db.Queries) {
 	associatedService := service.NewAssociatedService(queries)
 	associatedHandler := handler.NewAssociatedHandler(associatedService)
 	presenceService := service.NewPresenceService(queries)
@@ -24,6 +24,8 @@ func CreateRouter(mux *http.ServeMux, queries *database.Queries) {
 	mux.HandleFunc("GET /ping", PingPong)
 
 	mux.HandleFunc("GET /associated", associatedHandler.List())
+	mux.HandleFunc("GET /associated/{number_card}", associatedHandler.GetById())
+	mux.HandleFunc("PUT /associated", associatedHandler.Update())
 	mux.HandleFunc("POST /associated", associatedHandler.Create())
 	mux.HandleFunc("DELETE /associated/{number_card}", associatedHandler.Delete())
 

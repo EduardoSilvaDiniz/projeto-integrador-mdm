@@ -36,6 +36,7 @@ func main() {
 	queries, err := run()
 	if err != nil {
 		log.Panic(err)
+		return
 	}
 	log.Println("done")
 
@@ -46,7 +47,6 @@ func main() {
 	log.Println("servidor inicializado em :8080")
 	if err := http.ListenAndServe(":8080", mux); err != nil {
 		log.Fatal("Erro ao iniciar servidor:", err)
+		return
 	}
-
-	log.Println("done")
 }
