@@ -19,10 +19,11 @@ INSERT INTO
 VALUES
   (?, ?, ?);
 
--- name: UpdateAssociated :exec
+-- name: UpdateAssociated :execresult
 UPDATE associated
 SET
-  name = ?
+  name = ?,
+	group_id = ?
 WHERE
   number_card = ?;
 
@@ -60,7 +61,7 @@ INSERT INTO
 VALUES
   (?);
 
--- name: UpdateGroup :exec
+-- name: UpdateGroup :execresult
 UPDATE groups
 SET
   name = ?
@@ -93,7 +94,7 @@ FROM
 WHERE
   id = ?;
 
--- name: UpdateMeeting :exec
+-- name: UpdateMeeting :execresult
 UPDATE meeting
 SET
   group_id = ?,
@@ -149,9 +150,17 @@ WHERE
 
 -- name: CreatePresence :exec
 INSERT INTO
-  presence (number_card, meeting_id, date, is_presence)
+  presence (number_card, meeting_id, is_presence)
 VALUES
-  (?, ?, ?, ?);
+  (?, ?, ?);
+
+-- name: UpdatePresence :execresult
+UPDATE presence
+SET
+	is_presence = ?
+WHERE
+  number_card = ?
+	AND meeting_id = ?;
 
 -- name: DeletePresenceByCompositeKey :execresult
 DELETE FROM presence
@@ -197,7 +206,7 @@ INSERT INTO
 VALUES
   (?, ?, ?);
 
--- name: UpdatePayment :exec
+-- name: UpdatePayment :execresult
 UPDATE payment
 SET
   ref_month = ?,
