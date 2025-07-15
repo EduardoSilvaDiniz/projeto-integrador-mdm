@@ -1,7 +1,8 @@
 package domain
 
 import (
-	"projeto-integrador-mdm/internal/database"
+	"log/slog"
+	"projeto-integrador-mdm/internal/db"
 	"time"
 )
 
@@ -11,9 +12,18 @@ type Payment struct {
 	PaymentDate time.Time `json:"payment_date"`
 }
 
-func (a Payment) ToCreateParams() database.CreatePaymentParams {
-	return database.CreatePaymentParams{
+func (a Payment) ToCreateParams() db.CreatePaymentParams {
+	slog.Debug("chamada para função ToCreateParams em Payment")
+	return db.CreatePaymentParams{
 		NumberCard:  a.NumberCard,
+		RefMonth:    a.RefMonth,
+		PaymentDate: a.PaymentDate,
+	}
+}
+
+func (a Payment) ToUpdateParams() db.UpdatePaymentParams {
+	slog.Debug("chamada para função ToUpdateParams em Payment")
+	return db.UpdatePaymentParams{
 		RefMonth:    a.RefMonth,
 		PaymentDate: a.PaymentDate,
 	}

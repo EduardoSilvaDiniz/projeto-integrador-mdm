@@ -1,20 +1,33 @@
 package domain
 
 import (
-	"projeto-integrador-mdm/internal/database"
+	"log/slog"
+	"projeto-integrador-mdm/internal/db"
 	"time"
 )
 
 type Meeting struct {
 	ID      int64     `json:"id"`
+	GroupID int64     `json:"group_id"`
 	Date    time.Time `json:"date"`
 	Address string    `json:"address,omitempty"`
 }
 
-func (a Meeting) ToCreateParams() database.CreateMeetingParams {
-	return database.CreateMeetingParams{
+func (a Meeting) ToCreateParams() db.CreateMeetingParams {
+	slog.Debug("chamada para função ToCreateParams em Meeting")
+	return db.CreateMeetingParams{
 		GroupID: a.ID,
-		Date:    a.Date,
 		Address: a.Address,
+		Date:    a.Date,
+	}
+}
+
+func (a Meeting) ToUpdateParams() db.UpdateMeetingParams {
+	slog.Debug("chamada para função ToUpdateParams em Associated")
+	return db.UpdateMeetingParams{
+		GroupID: a.ID,
+		Address: a.Address,
+		Date:    a.Date,
+		ID:      a.ID,
 	}
 }

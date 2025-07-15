@@ -1,14 +1,18 @@
 package domain
 
-import "projeto-integrador-mdm/internal/database"
+import (
+	"log/slog"
+	"projeto-integrador-mdm/internal/db"
+)
 
-type PresenceCompositeKey struct {
+type PresenceByCompositeKey struct {
 	NumberCard int64 `json:"number_card"`
 	MeetingID  int64 `json:"meeting_id"`
 }
 
-func (a PresenceCompositeKey) ToCreateParams() database.DeletePresenceByCompositeKeyParams {
-	return database.DeletePresenceByCompositeKeyParams{
+func (a PresenceByCompositeKey) ToCreateParams() db.DeletePresenceByCompositeKeyParams {
+	slog.Debug("chamada para função ToCreateParams em PresenceByCompositeKey")
+	return db.DeletePresenceByCompositeKeyParams{
 		NumberCard: a.NumberCard,
 		MeetingID:  a.MeetingID,
 	}

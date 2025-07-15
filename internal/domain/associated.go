@@ -1,6 +1,9 @@
 package domain
 
-import "projeto-integrador-mdm/internal/db"
+import (
+	"log/slog"
+	"projeto-integrador-mdm/internal/db"
+)
 
 type Associated struct {
 	GroupID    int64  `json:"group_id"`
@@ -9,6 +12,7 @@ type Associated struct {
 }
 
 func (a Associated) ToCreateParams() db.CreateAssociatedParams {
+	slog.Debug("chamada para função ToCreateParams em Associated")
 	return db.CreateAssociatedParams{
 		GroupID:    a.GroupID,
 		Name:       a.Name,
@@ -17,15 +21,8 @@ func (a Associated) ToCreateParams() db.CreateAssociatedParams {
 }
 
 func (a Associated) ToUpdateParams() db.UpdateAssociatedParams {
+	slog.Debug("chamada para função ToUpdateParams em Associated")
 	return db.UpdateAssociatedParams{
-		GroupID:    a.GroupID,
-		Name:       a.Name,
-		NumberCard: a.NumberCard,
-	}
-}
-
-func (a Associated) ToStruct() db.Associated{
-	return db.Associated{
 		GroupID:    a.GroupID,
 		Name:       a.Name,
 		NumberCard: a.NumberCard,
