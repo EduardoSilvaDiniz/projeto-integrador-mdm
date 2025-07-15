@@ -24,7 +24,8 @@ CREATE TABLE meeting (
 
 CREATE TABLE groups (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
-  name TEXT NOT NULL
+  name TEXT NOT NULL,
+  hours DATE NOT NULL
 );
 
 CREATE TABLE payment (

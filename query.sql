@@ -23,7 +23,7 @@ VALUES
 UPDATE associated
 SET
   name = ?,
-	group_id = ?
+  group_id = ?
 WHERE
   number_card = ?;
 
@@ -57,14 +57,15 @@ WHERE
 
 -- name: CreateGroup :exec
 INSERT INTO
-  groups (name)
+  groups (name, hours)
 VALUES
-  (?);
+  (?, ?);
 
 -- name: UpdateGroup :execresult
 UPDATE groups
 SET
-  name = ?
+  name = ?,
+  hours = ?
 WHERE
   id = ?;
 
@@ -157,10 +158,10 @@ VALUES
 -- name: UpdatePresence :execresult
 UPDATE presence
 SET
-	is_presence = ?
+  is_presence = ?
 WHERE
   number_card = ?
-	AND meeting_id = ?;
+  AND meeting_id = ?;
 
 -- name: DeletePresenceByCompositeKey :execresult
 DELETE FROM presence
