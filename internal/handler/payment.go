@@ -2,8 +2,8 @@ package handler
 
 import (
 	"encoding/json"
+	"log/slog"
 	"net/http"
-
 	"projeto-integrador-mdm/internal/service"
 )
 
@@ -12,6 +12,7 @@ type PaymentHandler struct {
 }
 
 func NewPaymentHandler(service service.PaymentService) *PaymentHandler {
+	slog.Debug("criando objeto PaymentHandler")
 	return &PaymentHandler{
 		service: service,
 	}
@@ -28,7 +29,11 @@ func (h *PaymentHandler) Create() http.HandlerFunc {
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
 		if err := json.NewEncoder(w).Encode(object); err != nil {
-			http.Error(w, "Erro de execução JSON encode: "+err.Error(), http.StatusInternalServerError)
+			http.Error(
+				w,
+				"Erro de execução JSON encode: "+err.Error(),
+				http.StatusInternalServerError,
+			)
 		}
 	}
 }
@@ -74,7 +79,11 @@ func (h *PaymentHandler) Delete() http.HandlerFunc {
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
 		if err := json.NewEncoder(w).Encode(id); err != nil {
-			http.Error(w, "Erro de execução JSON encode: "+err.Error(), http.StatusInternalServerError)
+			http.Error(
+				w,
+				"Erro de execução JSON encode: "+err.Error(),
+				http.StatusInternalServerError,
+			)
 		}
 	}
 }

@@ -2,8 +2,8 @@ package handler
 
 import (
 	"fmt"
+	"log/slog"
 	"net/http"
-
 	"projeto-integrador-mdm/internal/service"
 )
 
@@ -12,6 +12,7 @@ type PresenceHandler struct {
 }
 
 func NewPresenceHandler(service service.PresenceService) *PresenceHandler {
+	slog.Debug("criando objeto PresenceHandler")
 	return &PresenceHandler{
 		service: service,
 	}
