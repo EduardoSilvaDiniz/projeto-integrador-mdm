@@ -8,7 +8,7 @@ CREATE TABLE associated (
 CREATE TABLE presence (
   number_card INTEGER NOT NULL,
   meeting_id INTEGER NOT NULL,
-  present BOOLEAN NOT NULL,
+  is_presence BOOLEAN NOT NULL,
   PRIMARY KEY (number_card, meeting_id),
   FOREIGN KEY (number_card) REFERENCES associated (number_card) ON DELETE CASCADE,
   FOREIGN KEY (meeting_id) REFERENCES meeting (id) ON DELETE CASCADE
@@ -24,7 +24,8 @@ CREATE TABLE meeting (
 
 CREATE TABLE groups (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
-  name TEXT NOT NULL
+  name TEXT NOT NULL,
+  hours DATE NOT NULL
 );
 
 CREATE TABLE payment (
