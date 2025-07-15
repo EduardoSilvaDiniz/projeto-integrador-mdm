@@ -1,19 +1,27 @@
 package web
 
 import (
+	"encoding/json"
+	"log/slog"
 	"net/http"
 	"projeto-integrador-mdm/internal/db"
 	"projeto-integrador-mdm/internal/handler"
 	"projeto-integrador-mdm/internal/service"
 )
 
-func PingPong(w http.ResponseWriter, _ *http.Request) {
-	if _, err := w.Write([]byte("pong")); err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
+func PingPong(w http.ResponseWriter, r *http.Request) {
+	slog.Info("Recebida requisição para PingPong", "path", r.URL.Path)
+	msg := "pong"
+
+	if err := json.NewEncoder(w).Encode(msg); err != nil {
+		slog.Error("erro ao tentar enviar JSON", "err", err)
+		http.Error(w, "erro ao tentar enviar JSON", http.StatusInternalServerError)
 	}
 }
 
 func CreateRouter(mux *http.ServeMux, queries *db.Queries) {
+	slog.Debug("chamada de função CreateRouter")
+
 	associatedService := service.NewAssociatedService(queries)
 	associatedHandler := handler.NewAssociatedHandler(associatedService)
 	presenceService := service.NewPresenceService(queries)
