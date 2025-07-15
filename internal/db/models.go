@@ -15,8 +15,9 @@ type Associated struct {
 }
 
 type Group struct {
-	ID   int64
-	Name string
+	ID    int64
+	Name  string
+	Hours time.Time
 }
 
 type Meeting struct {

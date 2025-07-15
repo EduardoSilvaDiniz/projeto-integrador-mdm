@@ -53,13 +53,18 @@ func (q *Queries) CreateAssociated(ctx context.Context, arg CreateAssociatedPara
 
 const createGroup = `-- name: CreateGroup :exec
 INSERT INTO
-  groups (name)
+  groups (name, hours)
 VALUES
-  (?)
+  (?, ?)
 `
 
-func (q *Queries) CreateGroup(ctx context.Context, name string) error {
-	_, err := q.db.ExecContext(ctx, createGroup, name)
+type CreateGroupParams struct {
+	Name  string
+	Hours time.Time
+}
+
+func (q *Queries) CreateGroup(ctx context.Context, arg CreateGroupParams) error {
+	_, err := q.db.ExecContext(ctx, createGroup, arg.Name, arg.Hours)
 	return err
 }
 
@@ -255,7 +260,7 @@ func (q *Queries) GetAssociatedByNumberCard(ctx context.Context, numberCard int6
 
 const getGroupByID = `-- name: GetGroupByID :one
 SELECT
-  id, name
+  id, name, hours
 FROM
   groups
 WHERE
@@ -265,13 +270,13 @@ WHERE
 func (q *Queries) GetGroupByID(ctx context.Context, id int64) (Group, error) {
 	row := q.db.QueryRowContext(ctx, getGroupByID, id)
 	var i Group
-	err := row.Scan(&i.ID, &i.Name)
+	err := row.Scan(&i.ID, &i.Name, &i.Hours)
 	return i, err
 }
 
 const getGroups = `-- name: GetGroups :many
 SELECT
-  id, name
+  id, name, hours
 FROM
   groups
 `
@@ -286,7 +291,7 @@ func (q *Queries) GetGroups(ctx context.Context) ([]Group, error) {
 	var items []Group
 	for rows.Next() {
 		var i Group
-		if err := rows.Scan(&i.ID, &i.Name); err != nil {
+		if err := rows.Scan(&i.ID, &i.Name, &i.Hours); err != nil {
 			return nil, err
 		}
 		items = append(items, i)
@@ -651,7 +656,7 @@ const updateAssociated = `-- name: UpdateAssociated :execresult
 UPDATE associated
 SET
   name = ?,
-	group_id = ?
+  group_id = ?
 WHERE
   number_card = ?
 `
@@ -669,18 +674,20 @@ func (q *Queries) UpdateAssociated(ctx context.Context, arg UpdateAssociatedPara
 const updateGroup = `-- name: UpdateGroup :execresult
 UPDATE groups
 SET
-  name = ?
+  name = ?,
+	hours = ?
 WHERE
   id = ?
 `
 
 type UpdateGroupParams struct {
-	Name string
-	ID   int64
+	Name  string
+	Hours time.Time
+	ID    int64
 }
 
 func (q *Queries) UpdateGroup(ctx context.Context, arg UpdateGroupParams) (sql.Result, error) {
-	return q.db.ExecContext(ctx, updateGroup, arg.Name, arg.ID)
+	return q.db.ExecContext(ctx, updateGroup, arg.Name, arg.Hours, arg.ID)
 }
 
 const updateMeeting = `-- name: UpdateMeeting :execresult
@@ -731,10 +738,10 @@ func (q *Queries) UpdatePayment(ctx context.Context, arg UpdatePaymentParams) (s
 const updatePresence = `-- name: UpdatePresence :execresult
 UPDATE presence
 SET
-	is_presence = ?
+  is_presence = ?
 WHERE
   number_card = ?
-	AND meeting_id = ?
+  AND meeting_id = ?
 `
 
 type UpdatePresenceParams struct {
