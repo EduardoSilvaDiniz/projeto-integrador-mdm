@@ -6,8 +6,8 @@ import (
 )
 
 type PresenceByCompositeKey struct {
-	NumberCard int64 `json:"number_card"`
-	MeetingID  int64 `json:"meeting_id"`
+	NumberCard int64 `json:"number_card" validate:"required,gt=0"`
+	MeetingID  int64 `json:"meeting_id"  validate:"required,gt=0"`
 }
 
 func (a PresenceByCompositeKey) ToCreateParams() db.DeletePresenceByCompositeKeyParams {

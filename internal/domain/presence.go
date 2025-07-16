@@ -6,9 +6,9 @@ import (
 )
 
 type Presence struct {
-	NumberCard int64 `json:"number_card"`
-	MeetingID  int64 `json:"meeting_id"`
-	IsPresence bool  `json:"is_presence,omitempty"`
+	NumberCard int64 `json:"number_card" validate:"required,gt=0"`
+	MeetingID  int64 `json:"meeting_id"  validate:"required,gt=0"`
+	IsPresence *bool `json:"is_presence" validate:"required"`
 }
 
 func (a Presence) ToCreateParams() db.CreatePresenceParams {
@@ -16,7 +16,7 @@ func (a Presence) ToCreateParams() db.CreatePresenceParams {
 	return db.CreatePresenceParams{
 		NumberCard: a.NumberCard,
 		MeetingID:  a.MeetingID,
-		IsPresence: a.IsPresence,
+		IsPresence: *a.IsPresence,
 	}
 }
 
@@ -25,6 +25,6 @@ func (a Presence) ToUpdateParams() db.UpdatePresenceParams {
 	return db.UpdatePresenceParams{
 		NumberCard: a.NumberCard,
 		MeetingID:  a.MeetingID,
-		IsPresence: a.IsPresence,
+		IsPresence: *a.IsPresence,
 	}
 }

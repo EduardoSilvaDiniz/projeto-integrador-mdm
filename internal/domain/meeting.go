@@ -7,10 +7,10 @@ import (
 )
 
 type Meeting struct {
-	ID      int64     `json:"id"`
-	GroupID int64     `json:"group_id"`
-	Date    time.Time `json:"date"`
-	Address string    `json:"address,omitempty"`
+	ID      int64     `json:"id"                validate:"required,gt=0"`
+	GroupID int64     `json:"group_id"          validate:"required,gt=0"`
+	Date    time.Time `json:"date"              validate:"required"`
+	Address string    `json:"address,omitempty" validate:"required"`
 }
 
 func (a Meeting) ToCreateParams() db.CreateMeetingParams {

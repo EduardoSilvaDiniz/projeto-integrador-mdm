@@ -7,9 +7,9 @@ import (
 )
 
 type Payment struct {
-	NumberCard  int64     `json:"number_card"`
-	RefMonth    string    `json:"ref_month"`
-	PaymentDate time.Time `json:"payment_date"`
+	NumberCard  int64     `json:"number_card"  validate:"required,gt=0"`
+	RefMonth    string    `json:"ref_month"    validate:"required"`
+	PaymentDate time.Time `json:"payment_date" validate:"required"`
 }
 
 func (a Payment) ToCreateParams() db.CreatePaymentParams {
