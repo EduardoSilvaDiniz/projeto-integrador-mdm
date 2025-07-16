@@ -258,7 +258,7 @@ func (q *Queries) GetAssociatedByNumberCard(ctx context.Context, numberCard int6
 	return i, err
 }
 
-const getGroupByID = `-- name: GetGroupByID :one
+const getGroupById = `-- name: GetGroupById :one
 SELECT
   id, name, hours
 FROM
@@ -267,8 +267,8 @@ WHERE
   id = ?
 `
 
-func (q *Queries) GetGroupByID(ctx context.Context, id int64) (Group, error) {
-	row := q.db.QueryRowContext(ctx, getGroupByID, id)
+func (q *Queries) GetGroupById(ctx context.Context, id int64) (Group, error) {
+	row := q.db.QueryRowContext(ctx, getGroupById, id)
 	var i Group
 	err := row.Scan(&i.ID, &i.Name, &i.Hours)
 	return i, err
@@ -305,7 +305,7 @@ func (q *Queries) GetGroups(ctx context.Context) ([]Group, error) {
 	return items, nil
 }
 
-const getMeetingByID = `-- name: GetMeetingByID :one
+const getMeetingById = `-- name: GetMeetingById :one
 SELECT
   id, group_id, address, date
 FROM
@@ -314,8 +314,8 @@ WHERE
   id = ?
 `
 
-func (q *Queries) GetMeetingByID(ctx context.Context, id int64) (Meeting, error) {
-	row := q.db.QueryRowContext(ctx, getMeetingByID, id)
+func (q *Queries) GetMeetingById(ctx context.Context, id int64) (Meeting, error) {
+	row := q.db.QueryRowContext(ctx, getMeetingById, id)
 	var i Meeting
 	err := row.Scan(
 		&i.ID,
@@ -471,7 +471,7 @@ func (q *Queries) GetPaymentByAssociated(ctx context.Context, numberCard int64) 
 	return items, nil
 }
 
-const getPaymentByID = `-- name: GetPaymentByID :one
+const getPaymentById = `-- name: GetPaymentById :one
 SELECT
   id, number_card, ref_month, payment_date
 FROM
@@ -480,8 +480,8 @@ WHERE
   id = ?
 `
 
-func (q *Queries) GetPaymentByID(ctx context.Context, id int64) (Payment, error) {
-	row := q.db.QueryRowContext(ctx, getPaymentByID, id)
+func (q *Queries) GetPaymentById(ctx context.Context, id int64) (Payment, error) {
+	row := q.db.QueryRowContext(ctx, getPaymentById, id)
 	var i Payment
 	err := row.Scan(
 		&i.ID,

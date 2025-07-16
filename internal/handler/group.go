@@ -8,16 +8,16 @@ import (
 	"projeto-integrador-mdm/internal/service"
 )
 
-type PaymentHandler struct {
-	service service.PaymentService
+type GroupHandler struct {
+	service service.GroupService
 }
 
-func NewPaymentHandler(service service.PaymentService) *PaymentHandler {
-	defer slog.Debug("criando objeto PaymentHandler")
-	return &PaymentHandler{service: service}
+func NewGroupHandler(service service.GroupService) *GroupHandler {
+	defer slog.Debug("criando objeto GroupHandler")
+	return &GroupHandler{service: service}
 }
 
-func (h *PaymentHandler) Create() http.HandlerFunc {
+func (h *GroupHandler) Create() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		logInicial(r)
 
@@ -41,15 +41,15 @@ func (h *PaymentHandler) Create() http.HandlerFunc {
 			return
 		}
 
-		slog.Info("Registro de pagamento criando")
+		slog.Info("Registro de grupo criando")
 		writeOk(w, object)
 	}
 }
 
-func (h *PaymentHandler) GetById() http.HandlerFunc {
+func (h *GroupHandler) GetByID() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		logInicial(r)
-		id := r.PathValue("payment_id")
+		id := r.PathValue("group_id")
 		ctx := r.Context()
 
 		object, err := h.service.GetById(ctx, id)
@@ -68,7 +68,7 @@ func (h *PaymentHandler) GetById() http.HandlerFunc {
 		}
 
 		if object == nil {
-			slog.Warn("Nenhum pagamento encontrado com o número informado", "payment_id", id)
+			slog.Warn("Nenhum grupo encontrado com o número informado", "group_id", id)
 			writeError(
 				w,
 				"não foi encontrando registro com numero de carterinha informado",
@@ -77,13 +77,13 @@ func (h *PaymentHandler) GetById() http.HandlerFunc {
 			return
 		}
 
-		slog.Info("registro de pagamento encontrando", "id", object.NumberCard)
+		slog.Info("registro de grupo encontrando", "id", object.ID)
 		writeOk(w, object)
 	}
 }
 
-// TODO update não esta recebendo o id pela url
-func (h *PaymentHandler) Update() http.HandlerFunc {
+// TODO update não esta recebndo o id pela url
+func (h *GroupHandler) Update() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		logInicial(r)
 		ctx := r.Context()
@@ -115,12 +115,12 @@ func (h *PaymentHandler) Update() http.HandlerFunc {
 			return
 		}
 
-		slog.Info("registro de pagamento atualizado", "id", object.ID)
+		slog.Info("registro de grupo atualizado", "id", object.ID)
 		writeOk(w, object)
 	}
 }
 
-func (h *PaymentHandler) List() http.HandlerFunc {
+func (h *GroupHandler) List() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		logInicial(r)
 		ctx := r.Context()
@@ -131,17 +131,17 @@ func (h *PaymentHandler) List() http.HandlerFunc {
 			return
 		}
 
-		slog.Info("Lista de pagamentos obtida com sucesso", "quantidade", len(list))
+		slog.Info("Lista de grupos obtida com sucesso", "quantidade", len(list))
 		writeOk(w, list)
 	}
 }
 
-func (h *PaymentHandler) Delete() http.HandlerFunc {
+func (h *GroupHandler) Delete() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		logInicial(r)
 
 		ctx := r.Context()
-		id := r.PathValue("payment_id")
+		id := r.PathValue("group_id")
 
 		rows, err := h.service.Delete(ctx, id)
 		if err != nil {

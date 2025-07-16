@@ -1,3 +1,4 @@
+
 package handler
 
 import (
@@ -8,16 +9,16 @@ import (
 	"projeto-integrador-mdm/internal/service"
 )
 
-type PaymentHandler struct {
-	service service.PaymentService
+type MeetingHandler struct {
+	service service.MeetingService
 }
 
-func NewPaymentHandler(service service.PaymentService) *PaymentHandler {
-	defer slog.Debug("criando objeto PaymentHandler")
-	return &PaymentHandler{service: service}
+func NewMeetingHandler(service service.MeetingService) *MeetingHandler {
+	defer slog.Debug("criando objeto MeetingHandler")
+	return &MeetingHandler{service: service}
 }
 
-func (h *PaymentHandler) Create() http.HandlerFunc {
+func (h *MeetingHandler) Create() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		logInicial(r)
 
@@ -41,15 +42,15 @@ func (h *PaymentHandler) Create() http.HandlerFunc {
 			return
 		}
 
-		slog.Info("Registro de pagamento criando")
+		slog.Info("Registro de reunião criando")
 		writeOk(w, object)
 	}
 }
 
-func (h *PaymentHandler) GetById() http.HandlerFunc {
+func (h *MeetingHandler) GetById() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		logInicial(r)
-		id := r.PathValue("payment_id")
+		id := r.PathValue("meeting_id")
 		ctx := r.Context()
 
 		object, err := h.service.GetById(ctx, id)
@@ -68,7 +69,7 @@ func (h *PaymentHandler) GetById() http.HandlerFunc {
 		}
 
 		if object == nil {
-			slog.Warn("Nenhum pagamento encontrado com o número informado", "payment_id", id)
+			slog.Warn("Nenhum reunião encontrado com o número informado", "meeting_id", id)
 			writeError(
 				w,
 				"não foi encontrando registro com numero de carterinha informado",
@@ -77,13 +78,13 @@ func (h *PaymentHandler) GetById() http.HandlerFunc {
 			return
 		}
 
-		slog.Info("registro de pagamento encontrando", "id", object.NumberCard)
+		slog.Info("registro de reunião encontrando", "id", object.ID)
 		writeOk(w, object)
 	}
 }
 
-// TODO update não esta recebendo o id pela url
-func (h *PaymentHandler) Update() http.HandlerFunc {
+//TODO o update não esta usando o id passado pela url
+func (h *MeetingHandler) Update() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		logInicial(r)
 		ctx := r.Context()
@@ -115,12 +116,12 @@ func (h *PaymentHandler) Update() http.HandlerFunc {
 			return
 		}
 
-		slog.Info("registro de pagamento atualizado", "id", object.ID)
+		slog.Info("registro de reunião atualizado", "id", object.ID)
 		writeOk(w, object)
 	}
 }
 
-func (h *PaymentHandler) List() http.HandlerFunc {
+func (h *MeetingHandler) List() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		logInicial(r)
 		ctx := r.Context()
@@ -131,17 +132,17 @@ func (h *PaymentHandler) List() http.HandlerFunc {
 			return
 		}
 
-		slog.Info("Lista de pagamentos obtida com sucesso", "quantidade", len(list))
+		slog.Info("Lista de reuniãos obtida com sucesso", "quantidade", len(list))
 		writeOk(w, list)
 	}
 }
 
-func (h *PaymentHandler) Delete() http.HandlerFunc {
+func (h *MeetingHandler) Delete() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		logInicial(r)
 
 		ctx := r.Context()
-		id := r.PathValue("payment_id")
+		id := r.PathValue("meeting_id")
 
 		rows, err := h.service.Delete(ctx, id)
 		if err != nil {

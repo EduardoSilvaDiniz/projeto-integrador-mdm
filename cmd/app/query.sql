@@ -47,7 +47,7 @@ SELECT
 FROM
   groups;
 
--- name: GetGroupByID :one
+-- name: GetGroupById :one
 SELECT
   *
 FROM
@@ -87,7 +87,7 @@ SELECT
 FROM
   meeting;
 
--- name: GetMeetingByID :one
+-- name: GetMeetingById :one
 SELECT
   *
 FROM
@@ -176,7 +176,7 @@ SELECT
 FROM
   payment;
 
--- name: GetPaymentByID :one
+-- name: GetPaymentById :one
 SELECT
   *
 FROM

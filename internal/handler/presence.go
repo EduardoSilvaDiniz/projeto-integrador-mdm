@@ -1,9 +1,11 @@
+
 package handler
 
 import (
-	"fmt"
+	"errors"
 	"log/slog"
 	"net/http"
+	"projeto-integrador-mdm/internal/errs"
 	"projeto-integrador-mdm/internal/service"
 )
 
@@ -18,83 +20,150 @@ func NewPresenceHandler(service service.PresenceService) *PresenceHandler {
 
 func (h *PresenceHandler) Create() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		ip := r.RemoteAddr
-		ua := r.UserAgent()
-		method := r.Method
-		path := r.URL.Path
+		logInicial(r)
 
-		slog.Info("Requisição recebida",
-			"ip", ip,
-			"user_agent", ua,
-			"method", method,
-			"path", path,
-		)
+		ctx := r.Context()
 
-		object, err := h.service.Create(r.Context(), r.Body)
+		object, err := h.service.Create(ctx, r.Body)
 		if err != nil {
-			w.WriteHeader(http.StatusBadRequest)
-			fmt.Fprintln(w, err)
+			if errors.Is(err, errs.ErrInvalidInput) {
+				slog.Error(err.Error())
+				writeError(w, err.Error(), http.StatusBadRequest)
+				return
+			}
+
+			if errors.Is(err, errs.ErrAlreadyExists) {
+				slog.Error(err.Error())
+				writeError(w, err.Error(), http.StatusBadRequest)
+				return
+			}
+
+			serviceError(w, r, err)
 			return
 		}
 
-		w.WriteHeader(http.StatusCreated)
-		fmt.Fprintln(w, object)
+		slog.Info("Registro de presença criando")
+		writeOk(w, object)
+	}
+}
+
+func (h *PresenceHandler) GetById() http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		logInicial(r)
+		numberCard := r.PathValue("number_card")
+		meetingId := r.PathValue("meeting_id")
+		ctx := r.Context()
+
+		object, err := h.service.GetById(ctx, numberCard, meetingId)
+		if err != nil {
+			if errors.Is(err, errs.ErrInvalidInput) {
+				writeError(
+					w,
+					"id invalido, só é aceito conjunto de numeros.",
+					http.StatusBadRequest,
+				)
+				return
+			}
+
+			serviceError(w, r, err)
+			return
+		}
+
+		if object == nil {
+			slog.Warn("Nenhum associado encontrado com o número informado", "number_card", numberCard, "meeting_id", meetingId)
+			writeError(
+				w,
+				"não foi encontrando registro com numero de carterinha informado",
+				http.StatusBadRequest,
+			)
+			return
+		}
+
+		slog.Info("registro de associado encontrando", "id", object)
+		writeOk(w, object)
+	}
+}
+
+func (h *PresenceHandler) Update() http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		logInicial(r)
+		ctx := r.Context()
+		body := r.Body
+
+		object, err := h.service.Update(ctx, body)
+		if err != nil {
+			if errors.Is(err, errs.ErrInvalidInput) {
+				slog.Error(err.Error())
+				writeError(w, err.Error(), http.StatusBadRequest)
+				return
+			}
+
+			serviceError(w, r, err)
+			return
+		}
+
+		if object == nil {
+			slog.Warn(
+				"não foi encontrando registro com o numero de carterinha informado",
+				"err",
+				err,
+			)
+			writeError(
+				w,
+				"não foi encontrando registro com numero de carterinha informado",
+				http.StatusBadRequest,
+			)
+			return
+		}
+
+		slog.Info("registro de presença atualizado", "id", object.NumberCard)
+		writeOk(w, object)
 	}
 }
 
 func (h *PresenceHandler) List() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		ip := r.RemoteAddr
-		ua := r.UserAgent()
-		method := r.Method
-		path := r.URL.Path
+		logInicial(r)
+		ctx := r.Context()
 
-		slog.Info("Requisição recebida",
-			"ip", ip,
-			"user_agent", ua,
-			"method", method,
-			"path", path,
-		)
-
-		presenceList, err := h.service.List(r.Context())
+		list, err := h.service.List(ctx)
 		if err != nil {
-			http.Error(w, "erro na execução GET: "+err.Error(), http.StatusBadRequest)
+			serviceError(w, r, err)
 			return
 		}
 
-		if len(presenceList) == 0 {
-			http.Error(w, "nenhum registro encontrado", http.StatusNotFound)
-			return
-		}
-
-		w.WriteHeader(http.StatusOK)
-		for _, assoc := range presenceList {
-			fmt.Fprintf(w, "%+v\n", assoc)
-		}
+		slog.Info("Lista de presenças obtida com sucesso", "quantidade", len(list))
+		writeOk(w, list)
 	}
 }
 
 func (h *PresenceHandler) Delete() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		ip := r.RemoteAddr
-		ua := r.UserAgent()
-		method := r.Method
-		path := r.URL.Path
+		logInicial(r)
 
-		slog.Info("Requisição recebida",
-			"ip", ip,
-			"user_agent", ua,
-			"method", method,
-			"path", path,
-		)
+		ctx := r.Context()
 
-		object, err := h.service.Delete(r.Context(), r.Body)
+		object, err := h.service.Delete(ctx, r.Body)
 		if err != nil {
-			http.Error(w, err.Error(), http.StatusInternalServerError)
+			serviceError(w, r, err)
 			return
 		}
 
-		w.WriteHeader(http.StatusOK)
-		fmt.Fprintln(w, "registro deletado com sucesso ", object)
+		if object == nil {
+			slog.Warn(
+				"não foi encontrando registro com o numero de carterinha informado",
+				"err",
+				err,
+			)
+			writeError(
+				w,
+				"não foi encontrando registro com numero de carterinha informado",
+				http.StatusBadRequest,
+			)
+			return
+		}
+
+		slog.Info("Registro apagado", "id", object)
+		writeOk(w, object)
 	}
 }

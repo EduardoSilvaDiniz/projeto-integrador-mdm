@@ -38,6 +38,10 @@ func CreateRouter(mux *http.ServeMux, queries *db.Queries) {
 	presenceHandler := handler.NewPresenceHandler(presenceService)
 	paymentService := service.NewPaymentService(queries)
 	paymentHandler := handler.NewPaymentHandler(paymentService)
+	meetingService := service.NewMeetingService(queries)
+	meetingHandler := handler.NewMeetingHandler(meetingService)
+	groupService := service.NewGroupService(queries)
+	groupHandler := handler.NewGroupHandler(groupService)
 
 	mux.HandleFunc("GET /ping", PingPong)
 
@@ -48,10 +52,26 @@ func CreateRouter(mux *http.ServeMux, queries *db.Queries) {
 	mux.HandleFunc("DELETE /associated/{number_card}", associatedHandler.Delete())
 
 	mux.HandleFunc("GET /presence", presenceHandler.List())
+	mux.HandleFunc("GET /presence/{number_card}/{meeting_id}", presenceHandler.GetById())
 	mux.HandleFunc("POST /presence", presenceHandler.Create())
+	mux.HandleFunc("PUT /presence", presenceHandler.Update())
 	mux.HandleFunc("DELETE /presence", presenceHandler.Delete())
 
 	mux.HandleFunc("GET /payment", paymentHandler.List())
+	mux.HandleFunc("GET /payment/{payment_id}", paymentHandler.GetById())
 	mux.HandleFunc("POST /payment", paymentHandler.Create())
+	mux.HandleFunc("PUT /payment/{payment_id}", paymentHandler.Update())
 	mux.HandleFunc("DELETE /payment/{payment_id}", paymentHandler.Delete())
+
+	mux.HandleFunc("GET /meeting", meetingHandler.List())
+	mux.HandleFunc("GET /meeting/{meeting_id}", meetingHandler.GetById())
+	mux.HandleFunc("POST /meeting", meetingHandler.Create())
+	mux.HandleFunc("PUT /meeting/{meeting_id}", meetingHandler.Update())
+	mux.HandleFunc("DELETE /meeting/{meeting_id}", meetingHandler.Delete())
+
+	mux.HandleFunc("GET /group", groupHandler.List())
+	mux.HandleFunc("GET /group/{group_id}", groupHandler.GetByID())
+	mux.HandleFunc("POST /group", groupHandler.Create())
+	mux.HandleFunc("PUT /group/{group_id}", groupHandler.Update())
+	mux.HandleFunc("DELETE /group/{group_id}", groupHandler.Delete())
 }

@@ -7,7 +7,7 @@ import (
 )
 
 type Group struct {
-	ID    int64     `json:"id"    validate:"required,gt=0"`
+	ID    int64     `json:"id"`
 	Name  string    `json:"name"  validate:"required"`
 	Hours time.Time `json:"hours" validate:"required"`
 }

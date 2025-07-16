@@ -7,6 +7,7 @@ import (
 )
 
 type Payment struct {
+	ID          int64     `json:"id"`
 	NumberCard  int64     `json:"number_card"  validate:"required,gt=0"`
 	RefMonth    string    `json:"ref_month"    validate:"required"`
 	PaymentDate time.Time `json:"payment_date" validate:"required"`

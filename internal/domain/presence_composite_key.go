@@ -17,3 +17,20 @@ func (a PresenceByCompositeKey) ToCreateParams() db.DeletePresenceByCompositeKey
 		MeetingID:  a.MeetingID,
 	}
 }
+
+
+func (a PresenceByCompositeKey) ToGetParams() db.GetPresenceByCompositeKeyParams {
+	slog.Debug("chamada de função ToGetParams em PresenceByCompositeKey")
+	return db.GetPresenceByCompositeKeyParams{
+		NumberCard: a.NumberCard,
+		MeetingID:  a.MeetingID,
+	}
+}
+
+func (a PresenceByCompositeKey) ToDeleteParams() db.DeletePresenceByCompositeKeyParams{
+	slog.Debug("chamada de função ToDeleteParams em PresenceByCompositeKey")
+	return db.DeletePresenceByCompositeKeyParams{
+		NumberCard: a.NumberCard,
+		MeetingID:  a.MeetingID,
+	}
+}
