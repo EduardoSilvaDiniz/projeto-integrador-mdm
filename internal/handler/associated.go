@@ -90,6 +90,7 @@ func (h *AssociatedHandler) Update() http.HandlerFunc {
 				"não foi encontrando registro com numero de carterinha informado",
 				http.StatusBadRequest,
 			)
+			return
 		}
 
 		slog.Info("registro de associado atualizado", "id", object.NumberCard)
