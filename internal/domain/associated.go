@@ -6,8 +6,8 @@ import (
 )
 
 type Associated struct {
-	NumberCard int64  `json:"number_card"    validate:"required,gte=0,lte=99999999"`
-	GroupID    int64  `json:"group_id"       validate:"required,gte=0,lte=99999999"`
+	NumberCard int64  `json:"number_card"    validate:"required,gt=0"`
+	GroupID    int64  `json:"group_id"       validate:"required,gt=0"`
 	Name       string `json:"name,omitempty" validate:"required"`
 }
 

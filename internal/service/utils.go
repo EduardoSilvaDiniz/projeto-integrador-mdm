@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io"
 	"log/slog"
+	"projeto-integrador-mdm/internal/errs"
 	"reflect"
 	"strings"
 
@@ -38,11 +39,10 @@ func ValidateStruct[T any](input T) error {
 	if err := validate.Struct(input); err != nil {
 		var listErrors []string
 		for _, err := range err.(validator.ValidationErrors) {
-			// fmt.Printf("Erro no campo '%s': %s\n", err.Field(), err.ActualTag())
-			listErrors = append(listErrors, "campo invalido", err.Field(), err.ActualTag())
+			listErrors = append(listErrors, err.Field()+": "+err.ActualTag())
 		}
 
-		return errors.New(strings.Join(listErrors, " "))
+		return fmt.Errorf("%w: %s", errs.ErrInvalidInput, strings.Join(listErrors, "; "))
 	}
 
 	return nil

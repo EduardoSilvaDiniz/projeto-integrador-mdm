@@ -1,8 +1,10 @@
 package handler
 
 import (
+	"errors"
 	"log/slog"
 	"net/http"
+	"projeto-integrador-mdm/internal/errs"
 	"projeto-integrador-mdm/internal/service"
 )
 
@@ -23,6 +25,12 @@ func (h *AssociatedHandler) Create() http.HandlerFunc {
 
 		object, err := h.service.Create(ctx, r.Body)
 		if err != nil {
+			if errors.Is(err, errs.ErrInvalidInput) {
+				slog.Error(err.Error())
+				http.Error(w, err.Error(), http.StatusBadRequest)
+				return
+			}
+
 			serviceError(w, r, err)
 			return
 		}
@@ -72,7 +80,7 @@ func (h *AssociatedHandler) Update() http.HandlerFunc {
 		}
 
 		if object == nil {
-			slog.Error(
+			slog.Warn(
 				"não foi encontrando registro com o numero de carterinha informado",
 				"err",
 				err,
