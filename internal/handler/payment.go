@@ -13,9 +13,7 @@ type PaymentHandler struct {
 
 func NewPaymentHandler(service service.PaymentService) *PaymentHandler {
 	defer slog.Debug("criando objeto PaymentHandler")
-	return &PaymentHandler{
-		service: service,
-	}
+	return &PaymentHandler{service: service}
 }
 
 func (h *PaymentHandler) Create() http.HandlerFunc {

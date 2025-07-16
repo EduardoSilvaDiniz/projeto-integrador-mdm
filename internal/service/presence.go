@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 	"errors"
 	"io"
-
 	"projeto-integrador-mdm/internal/db"
 	"projeto-integrador-mdm/internal/domain"
 )
@@ -30,13 +29,16 @@ func (s *presenceService) List(ctx context.Context) ([]db.Presence, error) {
 	return s.repo.GetPresence(ctx)
 }
 
-func (s *presenceService) Create(ctx context.Context, body io.ReadCloser) (*db.CreatePresenceParams, error) {
+func (s *presenceService) Create(
+	ctx context.Context,
+	body io.ReadCloser,
+) (*db.CreatePresenceParams, error) {
 	var dto domain.Presence
 	if err := json.NewDecoder(body).Decode(&dto); err != nil {
 		return nil, err
 	}
 
-	if err := IsValid(dto); err != nil {
+	if err := ValidateStruct(dto); err != nil {
 		return nil, err
 	}
 
@@ -60,7 +62,10 @@ func (s *presenceService) GetById(ctx context.Context, body io.ReadCloser) (*db.
 
 	params := dto.ToCreateParams()
 
-	register, err := s.repo.GetPresenceByCompositeKey(ctx, db.GetPresenceByCompositeKeyParams(params))
+	register, err := s.repo.GetPresenceByCompositeKey(
+		ctx,
+		db.GetPresenceByCompositeKeyParams(params),
+	)
 	if err != nil {
 		return nil, err
 	}
@@ -68,7 +73,10 @@ func (s *presenceService) GetById(ctx context.Context, body io.ReadCloser) (*db.
 	return &register, nil
 }
 
-func (s *presenceService) Update(ctx context.Context, body io.ReadCloser) (*db.UpdatePresenceParams, error) {
+func (s *presenceService) Update(
+	ctx context.Context,
+	body io.ReadCloser,
+) (*db.UpdatePresenceParams, error) {
 	var dto domain.Presence
 
 	if err := json.NewDecoder(body).Decode(&dto); err != nil {
@@ -95,7 +103,10 @@ func (s *presenceService) Update(ctx context.Context, body io.ReadCloser) (*db.U
 }
 
 // number_card = ? AND meeting_id = ?
-func (s *presenceService) Delete(ctx context.Context, body io.ReadCloser) (*db.DeletePresenceByCompositeKeyParams, error) {
+func (s *presenceService) Delete(
+	ctx context.Context,
+	body io.ReadCloser,
+) (*db.DeletePresenceByCompositeKeyParams, error) {
 	var dto domain.PresenceByCompositeKey
 	if err := json.NewDecoder(body).Decode(&dto); err != nil {
 		return nil, err

@@ -13,9 +13,7 @@ type PresenceHandler struct {
 
 func NewPresenceHandler(service service.PresenceService) *PresenceHandler {
 	defer slog.Debug("criando objeto PresenceHandler")
-	return &PresenceHandler{
-		service: service,
-	}
+	return &PresenceHandler{service: service}
 }
 
 func (h *PresenceHandler) Create() http.HandlerFunc {
