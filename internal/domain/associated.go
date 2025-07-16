@@ -6,9 +6,9 @@ import (
 )
 
 type Associated struct {
-	GroupID    int64  `json:"group_id"`
-	Name       string `json:"name,omitempty"`
-	NumberCard int64  `json:"number_card"`
+	NumberCard int64  `json:"number_card"    validate:"required,gte=0,lte=99999999"`
+	GroupID    int64  `json:"group_id"       validate:"required,gte=0,lte=99999999"`
+	Name       string `json:"name,omitempty" validate:"required"`
 }
 
 func (a Associated) ToCreateParams() db.CreateAssociatedParams {
