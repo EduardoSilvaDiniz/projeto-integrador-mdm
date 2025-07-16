@@ -27,7 +27,13 @@ func (h *AssociatedHandler) Create() http.HandlerFunc {
 		if err != nil {
 			if errors.Is(err, errs.ErrInvalidInput) {
 				slog.Error(err.Error())
-				http.Error(w, err.Error(), http.StatusBadRequest)
+				writeError(w, err.Error(), http.StatusBadRequest)
+				return
+			}
+
+			if errors.Is(err, errs.ErrAlreadyExists) {
+				slog.Error(err.Error())
+				writeError(w, err.Error(), http.StatusBadRequest)
 				return
 			}
 
@@ -48,6 +54,15 @@ func (h *AssociatedHandler) GetById() http.HandlerFunc {
 
 		object, err := h.service.GetById(ctx, id)
 		if err != nil {
+			if errors.Is(err, errs.ErrInvalidInput) {
+				writeError(
+					w,
+					"id invalido, só é aceito conjunto de numeros.",
+					http.StatusBadRequest,
+				)
+				return
+			}
+
 			serviceError(w, r, err)
 			return
 		}
@@ -75,6 +90,12 @@ func (h *AssociatedHandler) Update() http.HandlerFunc {
 
 		object, err := h.service.Update(ctx, body)
 		if err != nil {
+			if errors.Is(err, errs.ErrInvalidInput) {
+				slog.Error(err.Error())
+				writeError(w, err.Error(), http.StatusBadRequest)
+				return
+			}
+
 			serviceError(w, r, err)
 			return
 		}

@@ -4,11 +4,14 @@ import (
 	"context"
 	"database/sql"
 	"encoding/json"
+	"fmt"
 	"io"
 	"log/slog"
 	"projeto-integrador-mdm/internal/db"
 	"projeto-integrador-mdm/internal/domain"
+	"projeto-integrador-mdm/internal/errs"
 	"strconv"
+	"strings"
 )
 
 type AssociatedService interface {
@@ -49,6 +52,9 @@ func (s *associatedService) Create(
 
 	params := dto.ToCreateParams()
 	if err := s.repo.CreateAssociated(ctx, params); err != nil {
+		if strings.Contains(err.Error(), "UNIQUE constraint failed") {
+			return nil, fmt.Errorf("%w: %s", errs.ErrAlreadyExists, err.Error())
+		}
 		return nil, err
 	}
 	return &params, nil
@@ -59,7 +65,8 @@ func (s *associatedService) GetById(ctx context.Context, id string) (*db.Associa
 	idInt, err := strconv.ParseInt(id, 10, 32)
 	if err != nil {
 		slog.Error("erro de execução", "func", "strconv.ParseInt")
-		return nil, err
+		slog.Error("foi passado algo diferente de int")
+		return nil, fmt.Errorf("%w %s", errs.ErrInvalidInput, "só pode ser passado numeros")
 	}
 
 	register, err := s.repo.GetAssociatedByNumberCard(ctx, idInt)
@@ -90,6 +97,10 @@ func (s *associatedService) Update(
 
 	if err = json.Unmarshal(data, &dto); err != nil {
 		slog.Error("erro de execução", "func", "json.Unmarshal")
+		return nil, err
+	}
+
+	if err = ValidateStruct(dto); err != nil {
 		return nil, err
 	}
 
