@@ -10,8 +10,18 @@ import (
 )
 
 func PingPong(w http.ResponseWriter, r *http.Request) {
-	slog.Info("Recebida requisição para PingPong", "path", r.URL.Path)
+	ip := r.RemoteAddr
+	ua := r.UserAgent()
+	method := r.Method
+	path := r.URL.Path
 	msg := "pong"
+
+	slog.Info("Requisição recebida",
+		"ip", ip,
+		"user_agent", ua,
+		"method", method,
+		"path", path,
+	)
 
 	if err := json.NewEncoder(w).Encode(msg); err != nil {
 		slog.Error("erro ao tentar enviar JSON", "err", err)
