@@ -675,7 +675,7 @@ const updateGroup = `-- name: UpdateGroup :execresult
 UPDATE groups
 SET
   name = ?,
-	hours = ?
+  hours = ?
 WHERE
   id = ?
 `

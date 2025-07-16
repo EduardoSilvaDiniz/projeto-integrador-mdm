@@ -12,7 +12,7 @@ type PresenceHandler struct {
 }
 
 func NewPresenceHandler(service service.PresenceService) *PresenceHandler {
-	slog.Debug("criando objeto PresenceHandler")
+	defer slog.Debug("criando objeto PresenceHandler")
 	return &PresenceHandler{
 		service: service,
 	}
@@ -20,6 +20,18 @@ func NewPresenceHandler(service service.PresenceService) *PresenceHandler {
 
 func (h *PresenceHandler) Create() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
+		ip := r.RemoteAddr
+		ua := r.UserAgent()
+		method := r.Method
+		path := r.URL.Path
+
+		slog.Info("Requisição recebida",
+			"ip", ip,
+			"user_agent", ua,
+			"method", method,
+			"path", path,
+		)
+
 		object, err := h.service.Create(r.Context(), r.Body)
 		if err != nil {
 			w.WriteHeader(http.StatusBadRequest)
@@ -34,6 +46,18 @@ func (h *PresenceHandler) Create() http.HandlerFunc {
 
 func (h *PresenceHandler) List() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
+		ip := r.RemoteAddr
+		ua := r.UserAgent()
+		method := r.Method
+		path := r.URL.Path
+
+		slog.Info("Requisição recebida",
+			"ip", ip,
+			"user_agent", ua,
+			"method", method,
+			"path", path,
+		)
+
 		presenceList, err := h.service.List(r.Context())
 		if err != nil {
 			http.Error(w, "erro na execução GET: "+err.Error(), http.StatusBadRequest)
@@ -54,6 +78,18 @@ func (h *PresenceHandler) List() http.HandlerFunc {
 
 func (h *PresenceHandler) Delete() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
+		ip := r.RemoteAddr
+		ua := r.UserAgent()
+		method := r.Method
+		path := r.URL.Path
+
+		slog.Info("Requisição recebida",
+			"ip", ip,
+			"user_agent", ua,
+			"method", method,
+			"path", path,
+		)
+
 		object, err := h.service.Delete(r.Context(), r.Body)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)

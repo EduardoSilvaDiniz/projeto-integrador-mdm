@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"log/slog"
 	"net/http"
-
 	"projeto-integrador-mdm/internal/service"
 )
 
@@ -13,6 +12,7 @@ type AssociatedHandler struct {
 }
 
 func NewAssociatedHandler(service service.AssociatedService) *AssociatedHandler {
+	defer slog.Debug("criando objeto AssociatedHandler")
 	return &AssociatedHandler{
 		service: service,
 	}
@@ -20,13 +20,27 @@ func NewAssociatedHandler(service service.AssociatedService) *AssociatedHandler 
 
 func (h *AssociatedHandler) Create() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
+		ip := r.RemoteAddr
+		ua := r.UserAgent()
+		method := r.Method
+		path := r.URL.Path
 		ctx := r.Context()
-		slog.Info("Recebida requisição para criar registro de associado", "path", r.URL.Path)
+
+		slog.Info("Requisição recebida",
+			"ip", ip,
+			"user_agent", ua,
+			"method", method,
+			"path", path,
+		)
 
 		object, err := h.service.Create(ctx, r.Body)
 		if err != nil {
 			slog.Error("Erro ao criar registro de associados", "err", err)
-			http.Error(w, "erro ao tentar criar registro de associado", http.StatusInternalServerError)
+			http.Error(
+				w,
+				"erro ao tentar criar registro de associado",
+				http.StatusInternalServerError,
+			)
 			return
 		}
 		slog.Info("Registro de associado criando")
@@ -42,20 +56,41 @@ func (h *AssociatedHandler) Create() http.HandlerFunc {
 
 func (h *AssociatedHandler) GetById() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
+		ip := r.RemoteAddr
+		ua := r.UserAgent()
+		method := r.Method
+		path := r.URL.Path
 		id := r.PathValue("number_card")
 		ctx := r.Context()
 
-		slog.Info("Recebida requisição para buscar registro de associado pelo seu numero de carterinha", "path", r.URL.Path)
+		slog.Info("Requisição recebida",
+			"ip", ip,
+			"user_agent", ua,
+			"method", method,
+			"path", path,
+		)
 
 		object, err := h.service.GetById(ctx, id)
 		if err != nil {
 			slog.Error("erro ao tentar busca registro de associado", "err", err)
-			http.Error(w, "erro ao tentar busca registro de associado", http.StatusInternalServerError)
+			http.Error(
+				w,
+				"erro ao tentar busca registro de associado",
+				http.StatusInternalServerError,
+			)
 			return
 		}
 		if object == nil {
-			slog.Error("não foi encontrando registro com o numero de carterinha informado", "err", err)
-			http.Error(w, "não foi encontrando registro com numero de carterinha informado", http.StatusBadRequest)
+			slog.Error(
+				"não foi encontrando registro com o numero de carterinha informado",
+				"err",
+				err,
+			)
+			http.Error(
+				w,
+				"não foi encontrando registro com numero de carterinha informado",
+				http.StatusBadRequest,
+			)
 		}
 
 		slog.Info("registro de associado encontrando", "id", object.NumberCard)
@@ -71,20 +106,41 @@ func (h *AssociatedHandler) GetById() http.HandlerFunc {
 
 func (h *AssociatedHandler) Update() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
+		ip := r.RemoteAddr
+		ua := r.UserAgent()
+		method := r.Method
+		path := r.URL.Path
 		ctx := r.Context()
 		body := r.Body
 
-		slog.Info("Recebida requisição para atualizar registro de associado", "path", r.URL.Path)
+		slog.Info("Requisição recebida",
+			"ip", ip,
+			"user_agent", ua,
+			"method", method,
+			"path", path,
+		)
 
 		object, err := h.service.Update(ctx, body)
 		if err != nil {
-			http.Error(w, "erro ao tentar atualizar registro de associado", http.StatusInternalServerError)
+			http.Error(
+				w,
+				"erro ao tentar atualizar registro de associado",
+				http.StatusInternalServerError,
+			)
 			return
 		}
 
 		if object == nil {
-			slog.Error("não foi encontrando registro com o numero de carterinha informado", "err", err)
-			http.Error(w, "não foi encontrando registro com numero de carterinha informado", http.StatusBadRequest)
+			slog.Error(
+				"não foi encontrando registro com o numero de carterinha informado",
+				"err",
+				err,
+			)
+			http.Error(
+				w,
+				"não foi encontrando registro com numero de carterinha informado",
+				http.StatusBadRequest,
+			)
 		}
 
 		slog.Info("registro de associado atualizado", "id", object.NumberCard)
@@ -100,8 +156,18 @@ func (h *AssociatedHandler) Update() http.HandlerFunc {
 
 func (h *AssociatedHandler) List() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
+		ip := r.RemoteAddr
+		ua := r.UserAgent()
+		method := r.Method
+		path := r.URL.Path
 		ctx := r.Context()
-		slog.Info("Recebida requisição para listar associateds", "path", r.URL.Path)
+
+		slog.Info("Requisição recebida",
+			"ip", ip,
+			"user_agent", ua,
+			"method", method,
+			"path", path,
+		)
 
 		list, err := h.service.List(ctx)
 		if err != nil {
@@ -130,8 +196,19 @@ func (h *AssociatedHandler) List() http.HandlerFunc {
 
 func (h *AssociatedHandler) Delete() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
+		ip := r.RemoteAddr
+		ua := r.UserAgent()
+		method := r.Method
+		path := r.URL.Path
 		ctx := r.Context()
 		id := r.PathValue("number_card")
+
+		slog.Info("Requisição recebida",
+			"ip", ip,
+			"user_agent", ua,
+			"method", method,
+			"path", path,
+		)
 
 		rows, err := h.service.Delete(ctx, id)
 		if err != nil {

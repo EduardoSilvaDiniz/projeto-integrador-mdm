@@ -12,7 +12,7 @@ type PaymentHandler struct {
 }
 
 func NewPaymentHandler(service service.PaymentService) *PaymentHandler {
-	slog.Debug("criando objeto PaymentHandler")
+	defer slog.Debug("criando objeto PaymentHandler")
 	return &PaymentHandler{
 		service: service,
 	}
@@ -20,6 +20,18 @@ func NewPaymentHandler(service service.PaymentService) *PaymentHandler {
 
 func (h *PaymentHandler) Create() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
+		ip := r.RemoteAddr
+		ua := r.UserAgent()
+		method := r.Method
+		path := r.URL.Path
+
+		slog.Info("Requisição recebida",
+			"ip", ip,
+			"user_agent", ua,
+			"method", method,
+			"path", path,
+		)
+
 		object, err := h.service.Create(r.Context(), r.Body)
 		if err != nil {
 			http.Error(w, "erro de execução Create: "+err.Error(), http.StatusBadRequest)
@@ -40,6 +52,18 @@ func (h *PaymentHandler) Create() http.HandlerFunc {
 
 func (h *PaymentHandler) List() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
+		ip := r.RemoteAddr
+		ua := r.UserAgent()
+		method := r.Method
+		path := r.URL.Path
+
+		slog.Info("Requisição recebida",
+			"ip", ip,
+			"user_agent", ua,
+			"method", method,
+			"path", path,
+		)
+
 		list, err := h.service.List(r.Context())
 		if err != nil {
 			http.Error(w, "erro de execução List: "+err.Error(), http.StatusBadRequest)
@@ -63,8 +87,20 @@ func (h *PaymentHandler) List() http.HandlerFunc {
 
 func (h *PaymentHandler) Delete() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
+		ip := r.RemoteAddr
+		ua := r.UserAgent()
+		method := r.Method
+		path := r.URL.Path
 		ctx := r.Context()
 		id := r.PathValue("payment_id")
+
+		slog.Info("Requisição recebida",
+			"ip", ip,
+			"user_agent", ua,
+			"method", method,
+			"path", path,
+		)
+
 		rows, err := h.service.Delete(ctx, id)
 		if err != nil {
 			http.Error(w, "Error de execução Delete: "+err.Error(), http.StatusInternalServerError)

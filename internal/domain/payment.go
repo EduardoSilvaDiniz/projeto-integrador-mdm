@@ -13,7 +13,7 @@ type Payment struct {
 }
 
 func (a Payment) ToCreateParams() db.CreatePaymentParams {
-	slog.Debug("chamada para função ToCreateParams em Payment")
+	slog.Debug("chamada de função ToCreateParams em Payment")
 	return db.CreatePaymentParams{
 		NumberCard:  a.NumberCard,
 		RefMonth:    a.RefMonth,
@@ -22,7 +22,7 @@ func (a Payment) ToCreateParams() db.CreatePaymentParams {
 }
 
 func (a Payment) ToUpdateParams() db.UpdatePaymentParams {
-	slog.Debug("chamada para função ToUpdateParams em Payment")
+	slog.Debug("chamada de função ToUpdateParams em Payment")
 	return db.UpdatePaymentParams{
 		RefMonth:    a.RefMonth,
 		PaymentDate: a.PaymentDate,

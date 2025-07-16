@@ -20,7 +20,7 @@ func PingPong(w http.ResponseWriter, r *http.Request) {
 }
 
 func CreateRouter(mux *http.ServeMux, queries *db.Queries) {
-	slog.Debug("chamada de função CreateRouter")
+	defer slog.Debug("endpoints criados")
 
 	associatedService := service.NewAssociatedService(queries)
 	associatedHandler := handler.NewAssociatedHandler(associatedService)

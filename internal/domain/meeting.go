@@ -14,7 +14,7 @@ type Meeting struct {
 }
 
 func (a Meeting) ToCreateParams() db.CreateMeetingParams {
-	slog.Debug("chamada para função ToCreateParams em Meeting")
+	slog.Debug("chamada de função ToCreateParams em Meeting")
 	return db.CreateMeetingParams{
 		GroupID: a.ID,
 		Address: a.Address,
@@ -23,7 +23,7 @@ func (a Meeting) ToCreateParams() db.CreateMeetingParams {
 }
 
 func (a Meeting) ToUpdateParams() db.UpdateMeetingParams {
-	slog.Debug("chamada para função ToUpdateParams em Associated")
+	slog.Debug("chamada de função ToUpdateParams em Associated")
 	return db.UpdateMeetingParams{
 		GroupID: a.ID,
 		Address: a.Address,

@@ -11,7 +11,7 @@ type PresenceByCompositeKey struct {
 }
 
 func (a PresenceByCompositeKey) ToCreateParams() db.DeletePresenceByCompositeKeyParams {
-	slog.Debug("chamada para função ToCreateParams em PresenceByCompositeKey")
+	slog.Debug("chamada de função ToCreateParams em PresenceByCompositeKey")
 	return db.DeletePresenceByCompositeKeyParams{
 		NumberCard: a.NumberCard,
 		MeetingID:  a.MeetingID,

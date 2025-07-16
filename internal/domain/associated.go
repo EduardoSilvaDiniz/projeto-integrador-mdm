@@ -12,7 +12,7 @@ type Associated struct {
 }
 
 func (a Associated) ToCreateParams() db.CreateAssociatedParams {
-	slog.Debug("chamada para função ToCreateParams em Associated")
+	slog.Debug("chamada de função ToCreateParams em Associated")
 	return db.CreateAssociatedParams{
 		GroupID:    a.GroupID,
 		Name:       a.Name,
@@ -21,7 +21,7 @@ func (a Associated) ToCreateParams() db.CreateAssociatedParams {
 }
 
 func (a Associated) ToUpdateParams() db.UpdateAssociatedParams {
-	slog.Debug("chamada para função ToUpdateParams em Associated")
+	slog.Debug("chamada de função ToUpdateParams em Associated")
 	return db.UpdateAssociatedParams{
 		GroupID:    a.GroupID,
 		Name:       a.Name,

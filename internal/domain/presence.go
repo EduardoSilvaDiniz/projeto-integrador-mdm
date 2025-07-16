@@ -12,7 +12,7 @@ type Presence struct {
 }
 
 func (a Presence) ToCreateParams() db.CreatePresenceParams {
-	slog.Debug("chamada para função ToCreateParams em Presence")
+	slog.Debug("chamada de função ToCreateParams em Presence")
 	return db.CreatePresenceParams{
 		NumberCard: a.NumberCard,
 		MeetingID:  a.MeetingID,
@@ -21,7 +21,7 @@ func (a Presence) ToCreateParams() db.CreatePresenceParams {
 }
 
 func (a Presence) ToUpdateParams() db.UpdatePresenceParams {
-	slog.Debug("chamada para função ToUpdateParams em Presence")
+	slog.Debug("chamada de função ToUpdateParams em Presence")
 	return db.UpdatePresenceParams{
 		NumberCard: a.NumberCard,
 		MeetingID:  a.MeetingID,

@@ -13,7 +13,7 @@ type Group struct {
 }
 
 func (a Group) ToCreateParams() db.CreateGroupParams {
-	slog.Debug("chamada para função ToCreateParams em Group")
+	slog.Debug("chamada de função ToCreateParams em Group")
 	return db.CreateGroupParams{
 		Name:  a.Name,
 		Hours: a.Hours,
@@ -21,7 +21,7 @@ func (a Group) ToCreateParams() db.CreateGroupParams {
 }
 
 func (a Group) ToUpdateParams() db.UpdateGroupParams {
-	slog.Debug("chamada para função ToUpdateParams em Group")
+	slog.Debug("chamada de função ToUpdateParams em Group")
 	return db.UpdateGroupParams{
 		ID:    a.ID,
 		Name:  a.Name,
