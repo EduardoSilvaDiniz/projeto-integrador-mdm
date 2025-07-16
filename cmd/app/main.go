@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 	_ "embed"
+	"encoding/json"
 	"log/slog"
 	"net/http"
 	"os"
@@ -15,7 +16,7 @@ import (
 
 var (
 	//go:embed schema.sql
-	ddl    string
+	ddl string
 
 	logger = slog.New(slog.NewTextHandler(os.Stdout, &slog.HandlerOptions{
 		Level: slog.LevelDebug,
@@ -38,6 +39,19 @@ func run() (*db.Queries, error) {
 	return queries, nil
 }
 
+func RecoverMiddleware(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		defer func() {
+			if rec := recover(); rec != nil {
+				slog.Error("Panic recuperado", "error", rec)
+				w.WriteHeader(http.StatusInternalServerError)
+				json.NewEncoder(w).Encode("erro interno do servidor")
+			}
+		}()
+		next.ServeHTTP(w, r)
+	})
+}
+
 func main() {
 	port := ":8080"
 	slog.SetDefault(logger)
@@ -52,7 +66,7 @@ func main() {
 	mux := http.NewServeMux()
 	web.CreateRouter(mux, queries)
 
-	if err := http.ListenAndServe(port, mux); err != nil {
+	if err := http.ListenAndServe(port, RecoverMiddleware(mux)); err != nil {
 		slog.Error("Erro ao iniciar servidor:")
 		return
 	}
